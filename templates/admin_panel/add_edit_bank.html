@@ -1,0 +1,211 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}{% if is_edit %}Edit Bank: {{ bank.name }}{% else %}Add New Banking Partner{% endif %} | Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-5xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+        <div>
+            <h1 class="text-2xl font-black text-gray-900 tracking-tight">
+                {% if is_edit %}Edit Banking Partner: <span class="text-red-600">{{ bank.name }}</span>{% else %}Add New Banking Partner{% endif %}
+            </h1>
+            <p class="text-xs text-gray-500 mt-1">Configure interest rates, processing fees, links, and benefits displayed on the public website.</p>
+        </div>
+
+        <a href="{% url 'services:admin-bank-management' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs px-4 py-2.5 rounded-xl transition">
+            ← Back to Bank Management
+        </a>
+    </div>
+
+    <!-- Form -->
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div class="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 space-y-1 font-bold">
+                <p>Please fix the following validation errors:</p>
+                <ul class="list-disc list-inside font-normal">
+                    {% for field, errors in form.errors.items %}
+                        <li><strong>{{ field }}:</strong> {{ errors|striptags }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <!-- SECTION 1: Basic Information -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+            <h2 class="text-sm font-black uppercase text-gray-900 tracking-wider pb-2 border-b border-gray-100">
+                1. Basic Information & Branding
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Bank Name *</label>
+                    {{ form.name }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">URL Slug (unique) *</label>
+                    {{ form.slug }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Bank Category</label>
+                    {{ form.category }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Display Order (integer)</label>
+                    {{ form.display_order }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Official Website URL</label>
+                    {{ form.website_url }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Application / Apply Online URL</label>
+                    {{ form.application_url }}
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Bank Logo Image</label>
+                {% if is_edit and bank.logo %}
+                <div class="flex items-center space-x-4 mb-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                    <img src="{{ bank.logo.url }}" alt="{{ bank.name }}" class="h-10 max-w-[150px] object-contain">
+                    <span class="text-xs text-gray-500">Current Logo Uploaded</span>
+                </div>
+                {% endif %}
+                {{ form.logo }}
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Short Tagline / Overview</label>
+                {{ form.short_description }}
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Full Description</label>
+                {{ form.full_description }}
+            </div>
+
+            <div class="pt-2">
+                <label class="inline-flex items-center space-x-2 cursor-pointer">
+                    {{ form.is_active }}
+                    <span class="text-xs font-bold text-gray-800">Active (Visible on public Bank Loans page)</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- SECTION 2: Loan Rates & Terms -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+            <h2 class="text-sm font-black uppercase text-gray-900 tracking-wider pb-2 border-b border-gray-100">
+                2. Interest Rates & Processing Terms
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Starting Interest Rate (%) *</label>
+                    {{ form.min_interest_rate }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Max Interest Rate (%)</label>
+                    {{ form.max_interest_rate }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Max Tenure (Years) *</label>
+                    {{ form.max_tenure_years }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Min Loan Amount (₹)</label>
+                    {{ form.min_loan_amount }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Max Loan Amount (₹)</label>
+                    {{ form.max_loan_amount }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Processing Fee Type</label>
+                    {{ form.processing_fee_type }}
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Processing Fee Display Info *</label>
+                {{ form.processing_fee_info }}
+                <p class="text-[10px] text-gray-400 mt-1">e.g., "0.50% of loan amount + GST" or "Nil to 0.35% + GST"</p>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Detailed Processing Fee Terms</label>
+                {{ form.processing_fee_description }}
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Additional Charges & Prepayment Terms</label>
+                {{ form.additional_charges }}
+            </div>
+        </div>
+
+        <!-- SECTION 3: Dynamic Features & Benefits -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+            <h2 class="text-sm font-black uppercase text-gray-900 tracking-wider pb-2 border-b border-gray-100">
+                3. Dynamic Benefits & Key Features
+            </h2>
+
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Bank Benefits (One feature per line)</label>
+                {{ form.benefits_raw }}
+                <p class="text-[10px] text-gray-400 mt-1">Each line will automatically render with a green checkmark (✓) on the public card.</p>
+            </div>
+        </div>
+
+        <!-- SECTION 4: Eligibility & Policy Disclaimers -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+            <h2 class="text-sm font-black uppercase text-gray-900 tracking-wider pb-2 border-b border-gray-100">
+                4. Policy, Documentation & Disclaimers
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Eligibility Guidelines</label>
+                    {{ form.eligibility_info }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Required Documents</label>
+                    {{ form.required_documents }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Special Offers</label>
+                    {{ form.special_offers }}
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Disclaimer / Terms</label>
+                    {{ form.disclaimer }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="flex items-center justify-end space-x-4">
+            <a href="{% url 'services:admin-bank-management' %}" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition">
+                Cancel
+            </a>
+            <button type="submit" class="px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition shadow">
+                {% if is_edit %}Save Changes{% else %}Create Banking Partner{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Real Estate Partner Verification | Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-black text-gray-900">Real Estate Partner Verification</h1>
+            <p class="text-xs text-gray-500">Review government documents, agency credentials, and approve property posting privileges.</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-gray-500">Total Applications: {{ partners.count }}</span>
+        </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <form method="GET" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search by name, email, agency..." class="bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-xs font-bold text-gray-800 outline-none focus:border-brand-primary w-64">
+
+            <select name="status" class="bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-xs font-bold text-gray-800 outline-none">
+                <option value="">All Verification Statuses</option>
+                {% for val, label in status_choices %}
+                    <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="bg-gray-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-800 transition">
+                Filter
+            </button>
+            {% if query or status_filter %}
+                <a href="{% url 'accounts:admin_partner_applications' %}" class="text-xs text-gray-500 hover:underline">Reset</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
+                        <th class="p-4">Applicant</th>
+                        <th class="p-4">Contact & Email</th>
+                        <th class="p-4">Agency / Business</th>
+                        <th class="p-4">Location</th>
+                        <th class="p-4">Documents</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4">Registered Date</th>
+                        <th class="p-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 font-semibold text-gray-800">
+                    {% for p in partners %}
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="p-4 font-bold text-gray-900">
+                            {{ p.get_full_name|default:p.username }}
+                            <span class="block text-[10px] text-gray-400 font-normal">Role: {{ p.get_role_display }}</span>
+                        </td>
+                        <td class="p-4">
+                            <div>{{ p.email }}</div>
+                            <div class="text-[10px] text-gray-500">{{ p.phone|default:"No phone" }}</div>
+                        </td>
+                        <td class="p-4">
+                            <span class="font-bold text-brand-primary">{{ p.agency_name|default:"Individual" }}</span>
+                        </td>
+                        <td class="p-4 text-gray-600">
+                            {{ p.business_city|default:p.business_state|default:"N/A" }}
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-md font-bold text-[10px]">
+                                {{ p.partner_documents.count }} Doc(s)
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            {% if p.partner_approval_status == 'APPROVED' %}
+                                <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-bold text-[10px]">Approved</span>
+                            {% elif p.partner_approval_status == 'REJECTED' %}
+                                <span class="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full font-bold text-[10px]">Rejected</span>
+                            {% elif p.partner_approval_status == 'UNDER_VERIFICATION' %}
+                                <span class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full font-bold text-[10px]">Under Verification</span>
+                            {% elif p.partner_approval_status == 'ADDITIONAL_DOCS_REQUIRED' %}
+                                <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full font-bold text-[10px]">Docs Required</span>
+                            {% else %}
+                                <span class="px-2.5 py-1 bg-gray-100 text-gray-700 border border-gray-200 rounded-full font-bold text-[10px]">Pending Review</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4 text-gray-500 text-[11px]">
+                            {{ p.date_joined|date:"M d, Y" }}
+                        </td>
+                        <td class="p-4 text-right">
+                            <a href="{% url 'accounts:admin_partner_detail' user_id=p.id %}" class="inline-block bg-brand-primary hover:bg-brand-hover text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                Review & Verify
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-gray-400 font-bold">
+                            No Real Estate Partner applications match the selected criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

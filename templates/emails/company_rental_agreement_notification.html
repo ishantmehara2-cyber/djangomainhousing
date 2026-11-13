@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Rental Agreement Request | Housing</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
+    <table role="presentation" style="width: 100%; background-color: #f8fafc; padding: 40px 16px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" style="width: 100%; max-width: 580px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 36px 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <tr>
+                        <td align="left" style="padding-bottom: 24px; border-bottom: 1px solid #f1f5f9;">
+                            <span style="font-size: 22px; font-weight: 900; color: #0f172a; letter-spacing: -0.03em;">
+                                HOUSING<span style="color: #e02424;">.</span>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" style="padding-top: 24px;">
+                            <p style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">New Rental Agreement Request Received</p>
+                            <p style="font-size: 13px; color: #64748b; margin: 0 0 20px 0;">Reference No: <strong style="color: #e02424;">{{ agreement.reference_number }}</strong></p>
+
+                            <!-- Customer Information Section -->
+                            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+                                <p style="font-size: 12px; font-weight: 700; color: #0f172a; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.05em;">Customer Details</p>
+                                <table role="presentation" style="width: 100%; font-size: 13px; color: #334155;">
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600; width: 140px;">Full Name:</td>
+                                        <td style="padding: 4px 0; font-weight: 700; color: #0f172a;">{{ agreement.full_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">Email Address:</td>
+                                        <td style="padding: 4px 0;"><a href="mailto:{{ agreement.email }}" style="color: #e02424; text-decoration: none;">{{ agreement.email }}</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">Phone Number:</td>
+                                        <td style="padding: 4px 0; font-weight: 700; color: #0f172a;">{{ agreement.phone }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Agreement Request Details -->
+                            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 24px;">
+                                <p style="font-size: 12px; font-weight: 700; color: #0f172a; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.05em;">Agreement Specifications</p>
+                                <table role="presentation" style="width: 100%; font-size: 13px; color: #334155;">
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600; width: 140px;">Agreement Type:</td>
+                                        <td style="padding: 4px 0; font-weight: 700; color: #e02424;">{{ agreement.get_agreement_type_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">Property Address:</td>
+                                        <td style="padding: 4px 0;">{{ agreement.property_address }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">City:</td>
+                                        <td style="padding: 4px 0;">{{ agreement.city_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">Monthly Rent:</td>
+                                        <td style="padding: 4px 0; font-weight: 700; color: #0f172a;">₹ {{ agreement.monthly_rent }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">Security Deposit:</td>
+                                        <td style="padding: 4px 0;">₹ {{ agreement.security_deposit }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">Tenancy Period:</td>
+                                        <td style="padding: 4px 0;">{{ agreement.tenancy_period_months }} Months</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">Lock-in Period:</td>
+                                        <td style="padding: 4px 0;">{{ agreement.lock_in_period_months }} Months</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">Estimated Charge:</td>
+                                        <td style="padding: 4px 0; font-weight: 700; color: #0f172a;">₹ {{ agreement.estimated_charge }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; font-weight: 600;">Submitted At:</td>
+                                        <td style="padding: 4px 0;">{{ submission_date }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <p style="font-size: 13px; color: #64748b; margin: 0;">
+                                Log into the Housing Admin Portal to review and manage this request.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding-top: 32px; margin-top: 32px; border-top: 1px solid #f1f5f9;">
+                            <p style="font-size: 11px; color: #94a3b8; margin: 0;">
+                                &copy; 2026 Housing. All rights reserved.<br>
+                                Internal Notification System
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

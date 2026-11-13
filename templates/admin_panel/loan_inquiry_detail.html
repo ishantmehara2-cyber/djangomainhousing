@@ -1,0 +1,212 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Lead Details: {{ lead.lead_id }} | Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Header & Navigation -->
+    <div class="flex items-center justify-between">
+        <div>
+            <a href="{% url 'services:admin-loan-inquiries' %}" class="text-xs font-bold text-gray-500 hover:text-gray-900 transition flex items-center space-x-1">
+                <span>← Back to Loan Inquiry Leads</span>
+            </a>
+            <div class="flex items-center space-x-3 mt-1">
+                <h1 class="text-2xl font-black text-gray-900 font-mono tracking-tight">{{ lead.lead_id }}</h1>
+                <span class="text-xs font-bold text-gray-500">Submitted: {{ lead.created_at|date:"M d, Y @ H:i" }}</span>
+            </div>
+        </div>
+
+        <div>
+            {% if lead.status == 'LOAN_APPROVED' %}
+                <span class="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full font-extrabold text-xs">LOAN APPROVED</span>
+            {% elif lead.status == 'LOAN_REJECTED' %}
+                <span class="px-4 py-2 bg-red-100 text-red-800 rounded-full font-extrabold text-xs">LOAN REJECTED</span>
+            {% elif lead.status == 'UNDER_BANK_EVALUATION' %}
+                <span class="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full font-extrabold text-xs">BANK EVALUATION</span>
+            {% elif lead.status == 'CONTACT_PENDING' %}
+                <span class="px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-extrabold text-xs">CONTACT PENDING</span>
+            {% else %}
+                <span class="px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-extrabold text-xs">{{ lead.get_status_display|upper }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- MODULE 4: Applicant & Financial Information Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Applicant Info -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-3">
+            <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Applicant Information</h2>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Full Name</span>
+                    <span class="font-extrabold text-gray-900 text-sm block">{{ lead.full_name }}</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Mobile Number</span>
+                    <a href="tel:{{ lead.mobile_number }}" class="font-bold text-brand-primary text-sm hover:underline block">{{ lead.mobile_number }}</a>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Email Address</span>
+                    <a href="mailto:{{ lead.email_address }}" class="font-bold text-gray-800 hover:underline block">{{ lead.email_address }}</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial & Employment -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-3">
+            <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Financial & Employment Details</h2>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Employment Type</span>
+                    <span class="font-extrabold text-gray-900 text-sm block">{{ lead.get_employment_type_display }}</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Net Monthly Income</span>
+                    <span class="font-extrabold text-emerald-600 text-sm block">₹ {{ lead.net_monthly_income|floatformat:2 }}</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Desired Loan Amount</span>
+                    <span class="font-black text-brand-primary text-base block">₹ {{ lead.desired_loan_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferences & Meta -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-3">
+            <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Preferences & Assignment</h2>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Preferred Bank</span>
+                    {% if lead.preferred_bank %}
+                        <div class="flex items-center space-x-2 mt-1">
+                            {% if lead.preferred_bank.logo %}<img src="{{ lead.preferred_bank.logo.url }}" alt="Logo" class="h-5 max-w-[80px] object-contain">{% endif %}
+                            <span class="font-extrabold text-gray-900 text-sm">{{ lead.preferred_bank.name }}</span>
+                        </div>
+                    {% else %}
+                        <span class="font-bold text-gray-500 italic block mt-1">Any Partner Bank</span>
+                    {% endif %}
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Assigned Staff</span>
+                    <span class="font-bold text-gray-800 block">{% if lead.assigned_staff %}{{ lead.assigned_staff.get_full_name|default:lead.assigned_staff }}{% else %}Unassigned{% endif %}</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Follow-up Date</span>
+                    <span class="font-bold text-amber-700 block">{{ lead.follow_up_date|date:"M d, Y"|default:"No follow-up set" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE 5 & 7: Lead Status & Management Control Form -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
+        <h2 class="text-sm font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Lead Status Management & Assignment</h2>
+
+        <form method="POST" action="{% url 'services:admin-loan-inquiry-detail' lead_id=lead.id %}" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_lead">
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Lead Status *</label>
+                    <select name="status" class="bg-gray-50 border border-gray-200 p-3 rounded-xl w-full text-xs font-bold text-gray-800 outline-none focus:border-brand-primary">
+                        {% for val, label in status_choices %}
+                            <option value="{{ val }}" {% if lead.status == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Assign Staff / Advisor</label>
+                    <select name="assigned_staff" class="bg-gray-50 border border-gray-200 p-3 rounded-xl w-full text-xs font-bold text-gray-800 outline-none focus:border-brand-primary">
+                        <option value="">Unassigned</option>
+                        {% for staff in staff_members %}
+                            <option value="{{ staff.id }}" {% if lead.assigned_staff_id == staff.id %}selected{% endif %}>{{ staff.get_full_name|default:staff }} ({{ staff.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Scheduled Follow-up Date</label>
+                    <input type="date" name="follow_up_date" value="{{ lead.follow_up_date|date:'Y-m-d'|default:'' }}" class="bg-gray-50 border border-gray-200 p-3 rounded-xl w-full text-xs font-bold text-gray-800 outline-none focus:border-brand-primary">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">General Overview Notes</label>
+                <textarea name="admin_notes" rows="2" class="bg-gray-50 border border-gray-200 p-3 rounded-xl w-full text-xs font-bold text-gray-800 outline-none focus:border-brand-primary" placeholder="Enter high-level summary notes for this lead...">{{ lead.admin_notes|default:"" }}</textarea>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+                <button type="submit" class="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl font-bold text-xs transition shadow">
+                    Save Status & Updates
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- MODULE 6: Internal Private Admin Notes -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
+        <h2 class="text-sm font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Internal Admin Notes & Follow-up History</h2>
+        <p class="text-xs text-gray-500">Internal notes are private to administrators and never exposed publicly.</p>
+
+        <!-- Existing Notes List -->
+        <div class="space-y-3">
+            {% for n in notes %}
+                <div class="p-3.5 bg-gray-50 rounded-xl border border-gray-200 space-y-1 text-xs">
+                    <div class="flex items-center justify-between text-[10px] font-bold text-gray-500">
+                        <span>Author: <strong class="text-gray-900">{% if n.author %}{{ n.author.get_full_name|default:n.author }}{% else %}System{% endif %}</strong></span>
+                        <span>{{ n.created_at|date:"M d, Y @ H:i" }}</span>
+                    </div>
+                    <p class="text-gray-800 font-semibold">{{ n.note_text }}</p>
+                </div>
+            {% empty %}
+                <p class="text-xs text-gray-400 italic">No internal notes added yet.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Add Note Form -->
+        <form method="POST" action="{% url 'services:admin-loan-inquiry-detail' lead_id=lead.id %}" class="pt-2 border-t border-gray-100 space-y-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_note">
+            <textarea name="note_text" rows="2" required placeholder="Type new follow-up note (e.g., 'Called applicant, requested salary slips...')" class="bg-gray-50 border border-gray-200 p-3 rounded-xl w-full text-xs font-bold text-gray-800 outline-none focus:border-brand-primary"></textarea>
+            <button type="submit" class="bg-brand-primary hover:bg-brand-hover text-white px-4 py-2 rounded-xl text-xs font-bold transition">
+                + Add Internal Note
+            </button>
+        </form>
+    </div>
+
+    <!-- MODULE 5: Status Audit Trail -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
+        <h2 class="text-sm font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Status Audit Trail</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-extrabold text-gray-400 uppercase">
+                        <th class="p-3">Previous Status</th>
+                        <th class="p-3">New Status</th>
+                        <th class="p-3">Updated By</th>
+                        <th class="p-3">Notes / Context</th>
+                        <th class="p-3">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 font-semibold text-gray-700">
+                    {% for h in history %}
+                        <tr>
+                            <td class="p-3 text-gray-400">{{ h.get_old_status_display|default:"Initial" }}</td>
+                            <td class="p-3 font-bold text-brand-primary">{{ h.get_new_status_display }}</td>
+                            <td class="p-3">{% if h.updated_by %}{{ h.updated_by.get_full_name|default:h.updated_by }}{% else %}System{% endif %}</td>
+                            <td class="p-3 text-gray-600">{{ h.notes|default:"-" }}</td>
+                            <td class="p-3 text-gray-500 text-[11px]">{{ h.created_at|date:"M d, Y @ H:i" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="p-4 text-center text-gray-400">No status audit history recorded.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
