@@ -1,0 +1,116 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Documents Pending Leads | Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+        <div>
+            <div class="flex items-center space-x-3">
+                <h1 class="text-2xl font-black text-gray-900 tracking-tight">Documents Pending Leads</h1>
+                <span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">
+                    {{ total_count }} Total Requests
+                </span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Review and manage assistance requests from applicants who need help acquiring business/government registration documents.</p>
+        </div>
+    </div>
+
+    <!-- Filters & Search Bar -->
+    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+        <form method="GET" action="{% url 'accounts:admin_documents_pending_leads' %}" class="grid grid-cols-1 sm:grid-cols-6 gap-3">
+            <div class="sm:col-span-3">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Search Requests</label>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search by name, email, phone, city, agency..." class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-gray-900">
+            </div>
+
+            <div class="sm:col-span-2">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Status</label>
+                <select name="status" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-gray-900">
+                    <option value="">All Statuses</option>
+                    {% for val, label in status_choices %}
+                        <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="sm:col-span-1 flex items-end space-x-2">
+                <button type="submit" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs py-2 px-3 rounded-xl transition">
+                    Filter
+                </button>
+                {% if query or status_filter %}
+                    <a href="{% url 'accounts:admin_documents_pending_leads' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs py-2 px-3 rounded-xl transition">
+                        Reset
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Submissions Table -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
+                        <th class="p-4">Ref ID</th>
+                        <th class="p-4">Applicant</th>
+                        <th class="p-4">Contact</th>
+                        <th class="p-4">Business / Agency</th>
+                        <th class="p-4">City</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4">Submitted Date</th>
+                        <th class="p-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 font-medium text-gray-700">
+                    {% for lead in page_obj %}
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-4 font-extrabold text-gray-900">#{{ lead.lead_id }}</td>
+                            <td class="p-4 font-bold text-gray-900">{{ lead.full_name }}</td>
+                            <td class="p-4">
+                                <div>{{ lead.mobile_number }}</div>
+                                <div class="text-[11px] text-gray-500">{{ lead.email_address }}</div>
+                            </td>
+                            <td class="p-4">{{ lead.agency_name|default:"—" }}</td>
+                            <td class="p-4 font-bold">{{ lead.city_name }}</td>
+                            <td class="p-4">
+                                <span class="px-2.5 py-1 text-[10px] font-black uppercase rounded-full bg-blue-100 text-blue-800">
+                                    {{ lead.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="p-4 text-gray-500 text-[11px]">{{ lead.created_at|date:"d M Y, h:i A" }}</td>
+                            <td class="p-4 text-right">
+                                <a href="{% url 'accounts:admin_documents_pending_detail' lead_id=lead.id %}" class="bg-brand-primary text-white hover:bg-brand-hover px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                    Manage
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="p-8 text-center text-gray-500 font-bold">
+                                No document assistance requests found.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+            <div class="p-4 border-t border-gray-200 flex items-center justify-between">
+                <span class="text-xs text-gray-500 font-semibold">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <div class="flex space-x-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&status={{ status_filter }}" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-xs font-bold">Previous</a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&status={{ status_filter }}" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-xs font-bold">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

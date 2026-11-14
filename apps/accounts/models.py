@@ -143,3 +143,68 @@ class PartnerDocument(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.get_document_type_display()}"
 
+
+class DocumentsPendingLeadStatusChoices(models.TextChoices):
+    NEW = 'NEW', 'New'
+    CONTACT_PENDING = 'CONTACT_PENDING', 'Contact Pending'
+    CONTACTED = 'CONTACTED', 'Contacted'
+    GUIDANCE_PROVIDED = 'GUIDANCE_PROVIDED', 'Guidance Provided'
+    DOCUMENTS_RECEIVED = 'DOCUMENTS_RECEIVED', 'Documents Received'
+    REGISTRATION_COMPLETED = 'REGISTRATION_COMPLETED', 'Registration Completed'
+    CLOSED = 'CLOSED', 'Closed'
+
+
+class DocumentsPendingLead(models.Model):
+    """
+    Stores assistance enquiry leads from applicants who do not currently possess business registration documents.
+    """
+    lead_id = models.CharField(max_length=50, unique=True, db_index=True)
+    full_name = models.CharField(max_length=255)
+    mobile_number = models.CharField(max_length=20)
+    email_address = models.EmailField()
+    agency_name = models.CharField(max_length=255, blank=True, null=True)
+    city_name = models.CharField(max_length=100)
+    message = models.TextField(blank=True, null=True)
+    status = models.CharField(
+        max_length=30,
+        choices=DocumentsPendingLeadStatusChoices.choices,
+        default=DocumentsPendingLeadStatusChoices.NEW
+    )
+    assigned_staff = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='assigned_pending_doc_leads')
+    follow_up_date = models.DateField(null=True, blank=True)
+    email_verified = models.BooleanField(default=False)
+    email_verified_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'documents_pending_leads'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"#{self.lead_id} - {self.full_name} ({self.city_name})"
+
+
+class DocumentsPendingLeadNote(models.Model):
+    lead = models.ForeignKey(DocumentsPendingLead, on_delete=models.CASCADE, related_name='notes')
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    note_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'documents_pending_lead_notes'
+        ordering = ['-created_at']
+
+
+class DocumentsPendingLeadStatusHistory(models.Model):
+    lead = models.ForeignKey(DocumentsPendingLead, on_delete=models.CASCADE, related_name='status_history')
+    old_status = models.CharField(max_length=30)
+    new_status = models.CharField(max_length=30)
+    updated_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'documents_pending_lead_history'
+        ordering = ['-created_at']
+

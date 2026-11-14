@@ -2,6 +2,9 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from apps.accounts.views import (
     register_view,
+    documents_assistance_view,
+    assistance_send_otp_view,
+    assistance_verify_otp_view,
     verify_otp_view,
     verify_login_otp_view,
     resend_otp_view,
@@ -18,6 +21,8 @@ from apps.accounts.views import (
     admin_partner_applications_view,
     admin_partner_detail_view,
     admin_download_partner_document_view,
+    admin_documents_pending_leads_view,
+    admin_documents_pending_detail_view,
     profile_view,
     edit_profile_view,
     update_lead_status_view,
@@ -34,6 +39,9 @@ app_name = 'accounts'
 urlpatterns = [
     # Auth Web Pages
     path('auth/register/', register_view, name='register'),
+    path('auth/partner-documents-assistance/', documents_assistance_view, name='documents_assistance'),
+    path('auth/partner-documents-assistance/send-otp/', assistance_send_otp_view, name='documents_assistance_send_otp'),
+    path('auth/partner-documents-assistance/verify-otp/', assistance_verify_otp_view, name='documents_assistance_verify_otp'),
     path('auth/verify-otp/', verify_otp_view, name='verify_otp'),
     path('auth/login/', login_view, name='login'),
     path('auth/verify-login-otp/', verify_login_otp_view, name='verify_login_otp'),
@@ -65,6 +73,10 @@ urlpatterns = [
     path('admin-panel/partners/', admin_partner_applications_view, name='admin_partner_applications'),
     path('admin-panel/partners/<int:user_id>/', admin_partner_detail_view, name='admin_partner_detail'),
     path('admin-panel/partners/documents/<int:doc_id>/download/', admin_download_partner_document_view, name='admin_download_partner_document'),
+
+    # Admin Documents Pending Leads Routes (MODULE 3)
+    path('admin-panel/documents-pending-leads/', admin_documents_pending_leads_view, name='admin_documents_pending_leads'),
+    path('admin-panel/documents-pending-leads/<int:lead_id>/', admin_documents_pending_detail_view, name='admin_documents_pending_detail'),
 
     # Lead management
     path('leads/<int:lead_id>/update-status/', update_lead_status_view, name='update_lead_status'),

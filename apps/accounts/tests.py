@@ -89,8 +89,8 @@ class AuthenticationAndOTPWorkflowsTestCase(TestCase):
 
         # Check Email sent
         self.assertEqual(len(mail.outbox), 1)
-        self.assertIn("Verify your email address | Housing", mail.outbox[0].subject)
-        self.assertIn("Housing <", mail.outbox[0].from_email)
+        self.assertIn("Verify your email address | The Home First", mail.outbox[0].subject)
+        self.assertIn("The Home First <", mail.outbox[0].from_email)
 
         # Retrieve OTP record
         otp_obj, code = EmailOTP.generate_otp('alice@example.com', purpose=OTPPurposeChoices.REGISTER, bypass_cooldown=True)
@@ -118,7 +118,7 @@ class AuthenticationAndOTPWorkflowsTestCase(TestCase):
 
         # Email sent
         self.assertEqual(len(mail.outbox), 1)
-        self.assertIn("Your login verification code | Housing", mail.outbox[0].subject)
+        self.assertIn("Your login verification code | The Home First", mail.outbox[0].subject)
 
         # Step 2: Verify Login OTP
         otp_obj, code = EmailOTP.generate_otp('buyer@example.com', purpose=OTPPurposeChoices.LOGIN, user=self.buyer_user, bypass_cooldown=True)
@@ -145,7 +145,7 @@ class AuthenticationAndOTPWorkflowsTestCase(TestCase):
         # Verify Owner notification email directly dispatched with buyer's email & phone
         self.assertGreaterEqual(len(mail.outbox), 1)
         owner_email = mail.outbox[-1]
-        self.assertIn("New property enquiry received | Housing", owner_email.subject)
+        self.assertIn("New property enquiry received | The Home First", owner_email.subject)
         self.assertEqual(owner_email.to, [self.owner_user.email])
         self.assertIn(self.buyer_user.email, owner_email.body)
         self.assertIn(self.buyer_user.phone, owner_email.body)
@@ -193,3 +193,198 @@ class AuthenticationAndOTPWorkflowsTestCase(TestCase):
         is_valid, msg = otp_obj.verify(code, expected_purpose=OTPPurposeChoices.PROPERTY_INTEREST, expected_property_id=other_prop.id)
         self.assertFalse(is_valid)
         self.assertIn("not valid for this property", msg.lower())
+
+    def test_document_assistance_independent_submission_workflow(self):
+        from apps.accounts.models import DocumentsPendingLead
+        from apps.core.models import CompanyNotificationLog
+        from apps.services.models import EmailOTP, OTPPurposeChoices
+
+        applicant_email = "partner.applicant@gmail.com"
+        applicant_name = "Rajesh Verma"
+
+        # Request & Verify OTP
+        self.client.post(reverse('accounts:documents_assistance_send_otp'), {
+            'email': applicant_email,
+            'name': applicant_name
+        })
+        otp_obj, code = EmailOTP.generate_otp(applicant_email, purpose=OTPPurposeChoices.DOCUMENT_ASSISTANCE, bypass_cooldown=True)
+        self.client.post(reverse('accounts:documents_assistance_verify_otp'), {
+            'email': applicant_email,
+            'otp': code
+        })
+
+        # Independent submission directly succeeds with verified OTP
+        success_post = self.client.post(reverse('accounts:documents_assistance'), {
+            'assistance_full_name': applicant_name,
+            'assistance_mobile': '9820012345',
+            'assistance_email': applicant_email,
+            'assistance_agency': 'Verma Real Estate',
+            'assistance_city': 'Mumbai',
+            'assistance_message': 'Need assistance with Gumasta license.',
+        })
+        self.assertRedirects(success_post, reverse('accounts:register'))
+
+        # Confirm database record created in DocumentsPendingLead
+        self.assertTrue(DocumentsPendingLead.objects.filter(email_address=applicant_email).exists())
+        lead_record = DocumentsPendingLead.objects.get(email_address=applicant_email)
+        self.assertEqual(lead_record.full_name, applicant_name)
+        self.assertEqual(lead_record.city_name, 'Mumbai')
+        self.assertEqual(lead_record.status, 'NEW')
+        self.assertTrue(lead_record.lead_id.startswith('DPL-'))
+
+        # Confirm Company Gmail received internal notification email
+        company_notif = mail.outbox[-1]
+        self.assertEqual(company_notif.subject, "[THF] Government/Business Registration Documents Assistance Required")
+        self.assertNotIn("lead", company_notif.subject.lower())
+        self.assertNotIn("lead", company_notif.body.lower())
+        self.assertIn(applicant_name, company_notif.body)
+        self.assertIn(applicant_email, company_notif.body)
+
+        # Verify CompanyNotificationLog entry
+        self.assertTrue(CompanyNotificationLog.objects.filter(lead_ref=lead_record.lead_id, status='SENT').exists())
+
+
+from apps.accounts.models import DocumentsPendingLead, DocumentsPendingLeadStatusChoices
+
+class DocumentsPendingAssistanceFormTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin_user = User.objects.create_superuser(
+            username='admin@example.com',
+            email='admin@example.com',
+            password='AdminPassword123!',
+            first_name='Admin',
+            last_name='User'
+        )
+
+    def test_independent_documents_pending_assistance_submission(self):
+        # Step 1: Open Real Estate Partner registration page (no registration fields filled)
+        reg_page = self.client.get(reverse('accounts:register'))
+        self.assertEqual(reg_page.status_code, 200)
+
+        # Step 2: Request & Verify OTP
+        self.client.post(reverse('accounts:documents_assistance_send_otp'), {
+            'email': 'ramesh@example.com',
+            'name': 'Ramesh Kumar'
+        })
+        otp_obj, code = EmailOTP.generate_otp('ramesh@example.com', purpose=OTPPurposeChoices.DOCUMENT_ASSISTANCE, bypass_cooldown=True)
+        self.client.post(reverse('accounts:documents_assistance_verify_otp'), {
+            'email': 'ramesh@example.com',
+            'otp': code
+        })
+
+        # Step 3: Fill in independent assistance form via AJAX POST
+        assistance_data = {
+            'assistance_full_name': 'Ramesh Kumar',
+            'assistance_mobile': '9876543210',
+            'assistance_email': 'ramesh@example.com',
+            'assistance_agency': 'Kumar Real Estate',
+            'assistance_city': 'Pune',
+            'assistance_message': 'Currently applying for Gumasta license.',
+        }
+
+        response = self.client.post(
+            reverse('accounts:documents_assistance'),
+            data=assistance_data,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        # Step 4: Verify response
+        self.assertEqual(response.status_code, 200)
+        json_resp = response.json()
+        self.assertTrue(json_resp.get('success'))
+
+        # Step 5: Verify DocumentsPendingLead record created in DB
+        lead = DocumentsPendingLead.objects.filter(email_address='ramesh@example.com').first()
+        self.assertIsNotNone(lead)
+        self.assertEqual(lead.full_name, 'Ramesh Kumar')
+        self.assertEqual(lead.mobile_number, '9876543210')
+        self.assertEqual(lead.agency_name, 'Kumar Real Estate')
+        self.assertEqual(lead.city_name, 'Pune')
+        self.assertEqual(lead.status, DocumentsPendingLeadStatusChoices.NEW)
+        self.assertTrue(lead.lead_id.startswith('DPL-'))
+        self.assertIsNotNone(lead.created_at)
+
+        # Step 6: Verify NO User account created for this applicant
+        self.assertFalse(User.objects.filter(email='ramesh@example.com').exists())
+
+        # Step 7: Verify Company Gmail notification email dispatched
+        self.assertGreaterEqual(len(mail.outbox), 1)
+        sent_email = mail.outbox[-1]
+        self.assertEqual(sent_email.subject, "[THF] Government/Business Registration Documents Assistance Required")
+        self.assertNotIn("lead", sent_email.subject.lower())
+        self.assertNotIn("lead", sent_email.body.lower())
+        self.assertIn('Ramesh Kumar', sent_email.body)
+        self.assertIn('9876543210', sent_email.body)
+
+        # Step 8: Verify lead appears in Admin Portal -> Documents Pending Leads
+        self.client.force_login(self.admin_user)
+        admin_list_res = self.client.get(reverse('accounts:admin_documents_pending_leads'))
+        self.assertEqual(admin_list_res.status_code, 200)
+        self.assertContains(admin_list_res, lead.lead_id)
+        self.assertContains(admin_list_res, 'Ramesh Kumar')
+
+        # Step 9: Verify Admin Detail View
+        admin_detail_res = self.client.get(reverse('accounts:admin_documents_pending_detail', kwargs={'lead_id': lead.id}))
+        self.assertEqual(admin_detail_res.status_code, 200)
+        self.assertContains(admin_detail_res, 'Ramesh Kumar')
+        self.assertContains(admin_detail_res, 'Pune')
+
+
+    def test_documents_assistance_modal_workflow(self):
+        from apps.accounts.models import DocumentsPendingLead
+
+        # Request & Verify OTP
+        self.client.post(reverse('accounts:documents_assistance_send_otp'), {
+            'email': 'robert.applicant@example.com',
+            'name': 'Robert Applicant'
+        })
+        otp_obj, code = EmailOTP.generate_otp('robert.applicant@example.com', purpose=OTPPurposeChoices.DOCUMENT_ASSISTANCE, bypass_cooldown=True)
+        self.client.post(reverse('accounts:documents_assistance_verify_otp'), {
+            'email': 'robert.applicant@example.com',
+            'otp': code
+        })
+
+        # Submit assistance request form via AJAX modal submission
+        response = self.client.post(
+            reverse('accounts:documents_assistance'),
+            {
+                'assistance_full_name': 'Robert Applicant',
+                'assistance_mobile': '9988776655',
+                'assistance_email': 'robert.applicant@example.com',
+                'assistance_agency': 'Apex Real Estate Services',
+                'assistance_city': 'Pune',
+                'assistance_message': 'Need assistance with Gumasta and GST registration.'
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertTrue(json_data.get('success'))
+
+        # Verify database record created in DocumentsPendingLead
+        lead = DocumentsPendingLead.objects.filter(email_address='robert.applicant@example.com').first()
+        self.assertIsNotNone(lead)
+        self.assertEqual(lead.full_name, 'Robert Applicant')
+        self.assertEqual(lead.mobile_number, '9988776655')
+        self.assertEqual(lead.agency_name, 'Apex Real Estate Services')
+        self.assertEqual(lead.city_name, 'Pune')
+        self.assertEqual(lead.status, 'NEW')
+
+        # Verify no User account was created for this assistance request
+        self.assertFalse(User.objects.filter(email='robert.applicant@example.com').exists())
+
+        # Verify internal email notification sent
+        sent_email = [m for m in mail.outbox if "robert.applicant@example.com" in m.body or "Robert Applicant" in m.body][-1]
+
+        self.assertEqual(sent_email.subject, "[THF] Government/Business Registration Documents Assistance Required")
+        self.assertNotIn("lead", sent_email.subject.lower())
+        self.assertNotIn("lead", sent_email.body.lower())
+        self.assertIn("Robert Applicant", sent_email.body)
+        self.assertIn("9988776655", sent_email.body)
+        self.assertIn("robert.applicant@example.com", sent_email.body)
+        self.assertIn("Apex Real Estate Services", sent_email.body)
+        self.assertIn("Pune", sent_email.body)
+        self.assertIn("Need assistance with Gumasta and GST registration.", sent_email.body)
+

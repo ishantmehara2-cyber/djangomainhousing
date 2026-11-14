@@ -1,6 +1,6 @@
 {% extends 'admin_panel/base_admin.html' %}
 
-{% block title %}Admin Dashboard | Housing...{% endblock %}
+{% block title %}Admin Dashboard | The Home First{% endblock %}
 
 {% block admin_content %}
 <div class="space-y-8">
@@ -31,6 +31,27 @@
             <p class="text-3xl font-black text-gray-900">{{ total_visits }}</p>
             <p class="text-[11px] text-gray-500 font-medium pt-1">Client site inspections</p>
         </div>
+    </div>
+
+    <!-- Quick Access Links for Partner & Assistance Leads -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="{% url 'accounts:admin_documents_pending_leads' %}" class="bg-blue-50 border border-blue-200 p-5 rounded-3xl shadow-sm flex items-center justify-between hover:bg-blue-100/70 transition">
+            <div>
+                <span class="text-[10px] font-black text-blue-700 uppercase tracking-wider block">Assistance Requests</span>
+                <h3 class="text-xl font-black text-gray-900 mt-1">Documents Pending Leads</h3>
+                <p class="text-xs text-blue-800 font-semibold mt-0.5">Total Requests: {{ total_documents_pending_leads|default:"0" }}</p>
+            </div>
+            <span class="bg-blue-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">View Leads →</span>
+        </a>
+
+        <a href="{% url 'accounts:admin_partner_applications' %}" class="bg-amber-50 border border-amber-200 p-5 rounded-3xl shadow-sm flex items-center justify-between hover:bg-amber-100/70 transition">
+            <div>
+                <span class="text-[10px] font-black text-amber-700 uppercase tracking-wider block">Partner Verification</span>
+                <h3 class="text-xl font-black text-gray-900 mt-1">Partner Applications</h3>
+                <p class="text-xs text-amber-800 font-semibold mt-0.5">Review uploaded business documents</p>
+            </div>
+            <span class="bg-amber-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl">Review →</span>
+        </a>
     </div>
 
     <!-- Pending Properties Queue Quick Review -->

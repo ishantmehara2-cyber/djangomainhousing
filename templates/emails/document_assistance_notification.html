@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[THF] Government/Business Registration Documents Assistance Required</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b;">
+        <p style="margin-bottom: 16px;">A visitor has requested assistance regarding government/business registration documents on The Home First website.</p>
+
+        <p style="margin-bottom: 8px;"><strong>Applicant Details:</strong></p>
+
+        <p style="margin-bottom: 16px;">
+            Name: {{ name }}<br>
+            Mobile: {{ mobile }}<br>
+            Email: {{ email }}<br>
+            Business / Agency: {{ agency|default:"Not specified" }}<br>
+            City: {{ city }}<br>
+            Message: {{ message|default:"No additional details provided." }}
+        </p>
+
+        <p style="margin-bottom: 16px;">Email Verification: Successful</p>
+
+        <p style="margin-bottom: 16px;">Submitted On: {{ submission_date }}</p>
+
+        <p style="margin-bottom: 16px;">Please review this request and contact the applicant to guide them through the registration process.</p>
+
+        <p style="margin-top: 24px;">The Home First</p>
+    </div>
+</body>
+</html>

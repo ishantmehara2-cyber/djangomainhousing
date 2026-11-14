@@ -116,3 +116,44 @@ class TicketMessage(models.Model):
     class Meta:
         db_table = 'ticket_messages'
         ordering = ['created_at']
+
+
+class ContactEnquiry(models.Model):
+    reference_number = models.CharField(max_length=50, unique=True, db_index=True)
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    subject = models.CharField(max_length=255, blank=True, null=True)
+    message = models.TextField()
+    status = models.CharField(max_length=30, default='NEW')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'contact_enquiries'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"#{self.reference_number} - {self.name} ({self.email})"
+
+
+class CompanyNotificationLog(models.Model):
+    lead_ref = models.CharField(max_length=100, db_index=True)
+    notification_type = models.CharField(max_length=100)
+    recipient = models.CharField(max_length=255)
+    subject = models.CharField(max_length=255)
+    status = models.CharField(
+        max_length=20,
+        choices=[('SENT', 'Sent'), ('FAILED', 'Failed')],
+        default='SENT'
+    )
+    error_message = models.TextField(blank=True, null=True)
+    payload_json = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'company_notification_logs'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"[{self.status}] {self.notification_type} - {self.lead_ref}"
