@@ -257,6 +257,7 @@ class OTPPurposeChoices(models.TextChoices):
     REGISTER = 'REGISTER', 'Registration Verification'
     LOGIN = 'LOGIN', 'Login Verification'
     PROPERTY_INTEREST = 'PROPERTY_INTEREST', 'Property Interest Verification'
+    DOCUMENT_ASSISTANCE = 'DOCUMENT_ASSISTANCE', 'Document Assistance Verification'
 
 class EmailOTP(models.Model):
     email = models.EmailField(db_index=True)

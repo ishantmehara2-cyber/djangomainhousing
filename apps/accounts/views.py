@@ -12,13 +12,22 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
 from django.conf import settings
 
+import datetime
+from django.db.models import Q
 from apps.accounts.models import (
     RoleChoices,
     UserStatusChoices,
     PartnerApprovalStatusChoices,
     PartnerDocumentTypeChoices,
-    PartnerDocument
+    PartnerDocument,
+    DocumentsPendingLead,
+    DocumentsPendingLeadStatusChoices,
+    DocumentsPendingLeadNote,
+    DocumentsPendingLeadStatusHistory
 )
+from apps.services.models import EmailOTP, OTPPurposeChoices
+from apps.services.email_service import send_document_assistance_otp_email
+from apps.core.services.central_notification_service import CentralNotificationService
 from apps.core.validators import MAX_UPLOAD_SIZE_BYTES, validate_file_size_5mb, validate_document_file
 from apps.accounts.forms import (
     UserRegistrationForm,
@@ -264,9 +273,9 @@ def verify_otp_view(request):
                     del request.session['pending_registration']
 
                 if is_partner:
-                    messages.success(request, f"Welcome to Housing, {user.first_name}! Your Real Estate Partner registration is submitted and pending admin verification.")
+                    messages.success(request, f"Welcome to The Home First, {user.first_name}! Your Real Estate Partner registration is submitted and pending admin verification.")
                 else:
-                    messages.success(request, f"Welcome to Housing, {user.first_name}! Your customer account has been created successfully.")
+                    messages.success(request, f"Welcome to The Home First, {user.first_name}! Your customer account has been created successfully.")
                 return redirect(get_dashboard_url_for_user(user))
             else:
                 messages.error(request, msg)
@@ -1030,3 +1039,290 @@ def admin_download_partner_document_view(request, doc_id):
     else:
         response['Content-Disposition'] = f'attachment; filename="{doc.original_filename or os.path.basename(doc.file.name)}"'
     return response
+
+
+def assistance_send_otp_view(request):
+    """
+    Sends a 6-digit OTP code to the applicant's Gmail address for Document Assistance verification.
+    Enforces 60-second cooldown via EmailOTP model.
+    """
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        name = request.POST.get('name', '').strip()
+
+        if not email or '@' not in email:
+            return JsonResponse({'success': False, 'error': 'Please enter a valid email address.'}, status=400)
+
+        try:
+            otp_obj, otp_code = EmailOTP.generate_otp(
+                email=email,
+                purpose=OTPPurposeChoices.DOCUMENT_ASSISTANCE
+            )
+            send_document_assistance_otp_email(name, email, otp_code)
+            return JsonResponse({'success': True, 'message': f'A 6-digit verification code has been sent to {email}.'})
+        except ValueError as ve:
+            return JsonResponse({'success': False, 'error': str(ve)}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': f'Failed to dispatch OTP email: {e}'}, status=500)
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
+
+
+def assistance_verify_otp_view(request):
+    """
+    Verifies the 6-digit OTP entered by the applicant for Document Assistance form.
+    On successful verification, marks the email as verified in session.
+    """
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        input_otp = request.POST.get('otp', '').strip()
+
+        if not email or not input_otp:
+            return JsonResponse({'success': False, 'error': 'Email address and 6-digit OTP code are required.'}, status=400)
+
+        otp_obj = EmailOTP.objects.filter(
+            email__iexact=email,
+            purpose=OTPPurposeChoices.DOCUMENT_ASSISTANCE,
+            is_verified=False
+        ).order_by('-created_at').first()
+
+        if not otp_obj:
+            return JsonResponse({'success': False, 'error': 'No active OTP verification code found for this email. Please click Send OTP.'}, status=400)
+
+        is_valid, msg = otp_obj.verify(input_otp, expected_purpose=OTPPurposeChoices.DOCUMENT_ASSISTANCE)
+        if is_valid:
+            request.session[f'verified_doc_assistance_{email}'] = timezone.now().isoformat()
+            return JsonResponse({'success': True, 'message': 'Email verified successfully.'})
+        else:
+            return JsonResponse({'success': False, 'error': msg}, status=400)
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
+
+
+def documents_assistance_view(request):
+    """
+    Handles submission of assistance request form from applicants who do not currently possess
+    business/government registration documents via the modal popup.
+    Independent form: does NOT require main registration fields, passwords, or document uploads.
+    Mandatory backend Gmail OTP email verification check before creation.
+    Saves to DocumentsPendingLead table and sends email notification.
+    """
+    if request.method == 'POST':
+        full_name = (request.POST.get('assistance_full_name') or request.POST.get('full_name') or '').strip()
+        mobile = (request.POST.get('assistance_mobile') or request.POST.get('mobile') or '').strip()
+        email = (request.POST.get('assistance_email') or request.POST.get('email') or '').strip().lower()
+        agency = (request.POST.get('assistance_agency') or request.POST.get('agency') or '').strip()
+        city = (request.POST.get('assistance_city') or request.POST.get('city') or '').strip()
+        message = (request.POST.get('assistance_message') or request.POST.get('message') or '').strip()
+
+        is_ajax = (request.headers.get('x-requested-with') == 'XMLHttpRequest') or (request.content_type == 'application/json') or (request.POST.get('is_ajax') == 'true')
+
+        if not full_name or not mobile or not email or not city:
+            err_msg = "Full Name, Mobile Number, Email Address, and City are required fields."
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': err_msg}, status=400)
+            messages.error(request, err_msg)
+            return redirect('accounts:register')
+
+        # Enforce strict email OTP verification check
+        verified_ts = request.session.get(f'verified_doc_assistance_{email}')
+        has_db_verified = EmailOTP.objects.filter(
+            email__iexact=email,
+            purpose=OTPPurposeChoices.DOCUMENT_ASSISTANCE,
+            is_verified=True
+        ).exists()
+
+        if not verified_ts and not has_db_verified:
+            err_msg = "Please verify your email address via OTP before submitting your assistance request."
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': err_msg}, status=400)
+            messages.error(request, err_msg)
+            return redirect('accounts:register')
+
+        # Check for recent duplicate submission (within 60 seconds)
+        recent_cutoff = timezone.now() - datetime.timedelta(seconds=60)
+        duplicate = DocumentsPendingLead.objects.filter(
+            Q(mobile_number=mobile) | Q(email_address__iexact=email),
+            created_at__gte=recent_cutoff
+        ).first()
+
+        success_msg = "Your assistance request has been received successfully! Our team will contact you shortly."
+
+        if duplicate:
+            if is_ajax:
+                return JsonResponse({'success': True, 'message': success_msg, 'lead_id': duplicate.lead_id})
+            messages.success(request, success_msg)
+            return redirect('accounts:register')
+
+        # Generate unique reference ID: DPL-YYYYMMDD-XXXX
+        today_str = timezone.now().strftime('%Y%m%d')
+        daily_count = DocumentsPendingLead.objects.filter(created_at__date=timezone.now().date()).count() + 1
+        lead_id = f"DPL-{today_str}-{daily_count:04d}"
+
+        lead = DocumentsPendingLead.objects.create(
+            lead_id=lead_id,
+            full_name=full_name,
+            mobile_number=mobile,
+            email_address=email,
+            agency_name=agency,
+            city_name=city,
+            message=message,
+            status=DocumentsPendingLeadStatusChoices.NEW,
+            email_verified=True,
+            email_verified_at=timezone.now()
+        )
+
+        # Invalidate session verification token after successful creation
+        request.session.pop(f'verified_doc_assistance_{email}', None)
+
+        # Log initial status history
+        DocumentsPendingLeadStatusHistory.objects.create(
+            lead=lead,
+            old_status='',
+            new_status=DocumentsPendingLeadStatusChoices.NEW,
+            notes='Assistance request submitted via Real Estate Partner document assistance popup with verified email.'
+        )
+
+        # Build Admin Detail URL
+        try:
+            admin_url = request.build_absolute_uri(reverse('accounts:admin_documents_pending_detail', kwargs={'lead_id': lead.id}))
+        except Exception:
+            admin_url = None
+
+        # Trigger Centralized Internal Notification to Company Gmail
+        CentralNotificationService.send_company_lead_notification(
+            category="Documents Pending Assistance",
+            lead_ref=lead.lead_id,
+            name=lead.full_name,
+            mobile=lead.mobile_number,
+            email=lead.email_address,
+            details_dict={
+                'Applicant Name': lead.full_name,
+                'Mobile Number': lead.mobile_number,
+                'Email Address': lead.email_address,
+                'Agency / Business Name': lead.agency_name or 'Not specified',
+                'City': lead.city_name,
+                'Message / Details': lead.message or 'No additional details provided.',
+                'Email Verification': 'Successful'
+            },
+            admin_url=admin_url
+        )
+
+        if is_ajax:
+            return JsonResponse({'success': True, 'message': success_msg, 'lead_id': lead.lead_id})
+
+        messages.success(request, success_msg)
+        return redirect('accounts:register')
+
+    return redirect('accounts:register')
+
+
+@login_required
+@admin_required
+def admin_documents_pending_leads_view(request):
+    """
+    Admin section listing all Documents Pending Lead submissions with searching,
+    status filtering, sorting, and pagination.
+    """
+    query = request.GET.get('q', '').strip()
+    status_filter = request.GET.get('status', '').strip()
+
+    leads = DocumentsPendingLead.objects.select_related('assigned_staff').all()
+
+    if query:
+        leads = leads.filter(
+            Q(lead_id__icontains=query) |
+            Q(full_name__icontains=query) |
+            Q(mobile_number__icontains=query) |
+            Q(email_address__icontains=query) |
+            Q(city_name__icontains=query) |
+            Q(agency_name__icontains=query)
+        )
+
+    if status_filter:
+        leads = leads.filter(status=status_filter)
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(leads, 15)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'query': query,
+        'status_filter': status_filter,
+        'status_choices': DocumentsPendingLeadStatusChoices.choices,
+        'total_count': leads.count(),
+        'new_count': DocumentsPendingLead.objects.filter(status='NEW').count(),
+    }
+    return render(request, 'admin_panel/documents_pending_leads.html', context)
+
+
+@login_required
+@admin_required
+def admin_documents_pending_detail_view(request, lead_id):
+    """
+    Admin detail view for a specific Documents Pending Lead:
+    Allows updating status, adding notes, assigning staff, and setting follow-up dates.
+    """
+    lead = get_object_or_404(DocumentsPendingLead, id=lead_id)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update_status':
+            new_status = request.POST.get('status')
+            notes_text = request.POST.get('status_notes', '').strip()
+            follow_up = request.POST.get('follow_up_date')
+            assigned_staff_id = request.POST.get('assigned_staff')
+
+            if new_status and new_status in dict(DocumentsPendingLeadStatusChoices.choices):
+                old_status = lead.status
+                if old_status != new_status:
+                    lead.status = new_status
+                    DocumentsPendingLeadStatusHistory.objects.create(
+                        lead=lead,
+                        old_status=old_status,
+                        new_status=new_status,
+                        updated_by=request.user,
+                        notes=notes_text or f"Status changed from {old_status} to {new_status}"
+                    )
+
+            if follow_up:
+                try:
+                    lead.follow_up_date = datetime.datetime.strptime(follow_up, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+
+            if assigned_staff_id:
+                try:
+                    staff_user = User.objects.get(id=assigned_staff_id)
+                    lead.assigned_staff = staff_user
+                except User.DoesNotExist:
+                    pass
+
+            lead.save()
+            messages.success(request, f"Lead #{lead.lead_id} updated successfully.")
+
+        elif action == 'add_note':
+            note_text = request.POST.get('note_text', '').strip()
+            if note_text:
+                DocumentsPendingLeadNote.objects.create(
+                    lead=lead,
+                    author=request.user,
+                    note_text=note_text
+                )
+                messages.success(request, "Internal note added successfully.")
+
+        return redirect('accounts:admin_documents_pending_detail', lead_id=lead.id)
+
+    staff_users = User.objects.filter(Q(is_staff=True) | Q(role__in=[RoleChoices.ADMIN, RoleChoices.SUPER_ADMIN, RoleChoices.MODERATOR]))
+
+    context = {
+        'lead': lead,
+        'notes': lead.notes.select_related('author').all(),
+        'history': lead.status_history.select_related('updated_by').all(),
+        'status_choices': DocumentsPendingLeadStatusChoices.choices,
+        'staff_users': staff_users,
+    }
+    return render(request, 'admin_panel/documents_pending_detail.html', context)

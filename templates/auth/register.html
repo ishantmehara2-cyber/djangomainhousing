@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Register as Real Estate Partner | Housing..{% endblock %}
+{% block title %}Register as Real Estate Partner | The Home First{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto px-4 py-10">
@@ -8,6 +8,11 @@
         <div class="text-center space-y-1">
             <h1 class="text-2xl font-black text-gray-900">Register as Real Estate Partner</h1>
             <p class="text-xs text-gray-500 font-medium">List properties and manage your real estate portfolio.</p>
+        </div>
+
+        <!-- Success Notification Banner after Document Assistance Submission -->
+        <div id="mainAssistanceSuccessAlert" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl text-xs font-bold space-y-1">
+            <p id="mainAssistanceSuccessText"></p>
         </div>
 
         <form method="POST" action="{% url 'accounts:register' %}" enctype="multipart/form-data" id="registrationForm" class="space-y-5">
@@ -159,6 +164,13 @@
                     <p id="fileSizeGlobalError" class="hidden text-red-600 text-xs font-bold mt-1">Maximum allowed file size is 5 MB per file.</p>
                 </div>
 
+                <!-- Assistance Trigger Link Below Upload Section -->
+                <div class="pt-1">
+                    <button type="button" id="openDocAssistanceModalBtn" class="text-xs font-bold text-brand-primary hover:underline focus:outline-none transition inline-flex items-center space-x-1">
+                        <span>Don't have these documents? Click here.</span>
+                    </button>
+                </div>
+
                 <!-- PROPERTY LISTING RESPONSIBILITY DECLARATION -->
                 <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl space-y-3">
                     <h3 class="text-xs font-extrabold text-amber-900 uppercase tracking-wide">Property Listing Responsibility Declaration</h3>
@@ -194,6 +206,95 @@
     </div>
 </div>
 
+<!-- Document Assistance Modal Popup -->
+<div id="docAssistanceModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="docAssistanceModalTitle">
+    <div id="docAssistanceModalContent" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 relative border border-gray-100 my-8">
+        <!-- Close Button (×) -->
+        <button type="button" id="closeDocAssistanceModalBtn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-9 h-9 flex items-center justify-center font-bold text-lg transition focus:outline-none" aria-label="Close modal">
+            &times;
+        </button>
+
+        <!-- Popup Header -->
+        <div class="space-y-2 pr-8">
+            <h2 id="docAssistanceModalTitle" class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">Need Help With Government Documents?</h2>
+            <p class="text-xs text-gray-600 leading-relaxed font-medium">
+                Don't have the required government/business registration documents yet? Share your details with us. Our team will contact you and guide you through the process.
+            </p>
+        </div>
+
+        <!-- Inline Modal Alert -->
+        <div id="modalAlert" class="hidden mt-4 p-3 rounded-xl text-xs font-bold"></div>
+
+        <!-- Independent Assistance Form -->
+        <form id="docAssistanceForm" class="mt-5 space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="is_ajax" value="true">
+
+            <div>
+                <label for="assistance_full_name" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Full Name *</label>
+                <input type="text" id="assistance_full_name" name="assistance_full_name" required placeholder="Enter your full name" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-brand-primary">
+            </div>
+
+            <!-- Email Address & Gmail OTP Row -->
+            <div>
+                <label for="assistance_email" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Email Address *</label>
+                <div class="flex items-center space-x-2">
+                    <input type="email" id="assistance_email" name="assistance_email" required placeholder="name@example.com" class="flex-grow bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-brand-primary">
+                    <button type="button" id="sendAssistanceOtpBtn" class="bg-gray-900 hover:bg-gray-800 text-white px-3.5 py-3 rounded-xl text-xs font-bold whitespace-nowrap transition">
+                        Send OTP
+                    </button>
+                </div>
+                <p id="otpSentMsg" class="hidden text-[11px] font-semibold text-emerald-600 mt-1"></p>
+            </div>
+
+            <!-- OTP Verification Box (Shown after Send OTP) -->
+            <div id="assistanceOtpContainer" class="hidden space-y-1.5 bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200">
+                <label for="assistance_otp" class="block text-[10px] font-bold text-amber-900 uppercase">Enter 6-Digit Verification Code *</label>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="assistance_otp" maxlength="6" placeholder="123456" class="flex-grow bg-white border border-gray-200 rounded-xl p-2.5 text-xs font-mono font-bold text-center tracking-widest outline-none focus:border-brand-primary">
+                    <button type="button" id="verifyAssistanceOtpBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition shadow-sm">
+                        Verify OTP
+                    </button>
+                </div>
+                <p id="otpStatusMsg" class="text-[11px] font-bold mt-1"></p>
+            </div>
+
+            <!-- Verified Email Success Badge -->
+            <div id="assistanceEmailVerifiedBadge" class="hidden bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-xs font-bold text-emerald-800 flex items-center space-x-2">
+                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Email address verified successfully via Gmail OTP.</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="assistance_mobile" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Mobile Number *</label>
+                    <input type="tel" id="assistance_mobile" name="assistance_mobile" required placeholder="Enter 10-digit mobile number" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-brand-primary">
+                </div>
+                <div>
+                    <label for="assistance_city" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">City *</label>
+                    <input type="text" id="assistance_city" name="assistance_city" required placeholder="Your operating city" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-brand-primary">
+                </div>
+            </div>
+
+            <div>
+                <label for="assistance_agency" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Business / Agency Name (Optional)</label>
+                <input type="text" id="assistance_agency" name="assistance_agency" placeholder="Agency or company name" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-brand-primary">
+            </div>
+
+            <div>
+                <label for="assistance_message" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Message / Additional Details (Optional)</label>
+                <textarea id="assistance_message" name="assistance_message" rows="3" placeholder="Tell us which document you need help with..." class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-brand-primary"></textarea>
+            </div>
+
+            <button type="submit" id="submitAssistanceBtn" class="w-full bg-brand-primary hover:bg-brand-hover text-white py-3.5 rounded-xl font-extrabold text-xs transition shadow-md flex items-center justify-center space-x-2">
+                <span>Request Assistance</span>
+            </button>
+        </form>
+    </div>
+</div>
+
 <script>
 function validateFileSize(input) {
     const errorEl = document.getElementById('fileSizeGlobalError');
@@ -209,5 +310,292 @@ function validateFileSize(input) {
         }
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('docAssistanceModal');
+    const openBtn = document.getElementById('openDocAssistanceModalBtn');
+    const closeBtn = document.getElementById('closeDocAssistanceModalBtn');
+    const form = document.getElementById('docAssistanceForm');
+    const submitBtn = document.getElementById('submitAssistanceBtn');
+    const alertBox = document.getElementById('modalAlert');
+    const mainSuccessAlert = document.getElementById('mainAssistanceSuccessAlert');
+    const mainSuccessText = document.getElementById('mainAssistanceSuccessText');
+
+    // OTP Elements
+    const emailInput = document.getElementById('assistance_email');
+    const nameInput = document.getElementById('assistance_full_name');
+    const sendOtpBtn = document.getElementById('sendAssistanceOtpBtn');
+    const otpContainer = document.getElementById('assistanceOtpContainer');
+    const otpInput = document.getElementById('assistance_otp');
+    const verifyOtpBtn = document.getElementById('verifyAssistanceOtpBtn');
+    const otpSentMsg = document.getElementById('otpSentMsg');
+    const otpStatusMsg = document.getElementById('otpStatusMsg');
+    const verifiedBadge = document.getElementById('assistanceEmailVerifiedBadge');
+
+    let isAssistanceEmailVerified = false;
+    let verifiedAssistanceEmail = "";
+    let otpCooldownInterval = null;
+
+    function openModal() {
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        if (alertBox) {
+            alertBox.classList.add('hidden');
+            alertBox.textContent = '';
+        }
+    }
+
+    function closeModal() {
+        if (!modal) return;
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    if (openBtn) {
+        openBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal();
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+
+    // Handle Send OTP
+    if (sendOtpBtn) {
+        sendOtpBtn.addEventListener('click', function() {
+            const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+            const name = nameInput ? nameInput.value.trim() : '';
+
+            if (!email || !email.includes('@')) {
+                if (alertBox) {
+                    alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-red-50 border border-red-200 text-red-700";
+                    alertBox.textContent = "Please enter a valid email address before sending OTP.";
+                    alertBox.classList.remove('hidden');
+                }
+                if (emailInput) emailInput.focus();
+                return;
+            }
+
+            if (alertBox) alertBox.classList.add('hidden');
+            sendOtpBtn.disabled = true;
+            sendOtpBtn.textContent = 'Sending...';
+
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('name', name || 'Applicant');
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch("{% url 'accounts:documents_assistance_send_otp' %}", {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (otpContainer) otpContainer.classList.remove('hidden');
+                    if (otpSentMsg) {
+                        otpSentMsg.textContent = data.message || `A 6-digit OTP code has been sent to ${email}.`;
+                        otpSentMsg.classList.remove('hidden');
+                    }
+
+                    // 60-second cooldown
+                    let timeLeft = 60;
+                    sendOtpBtn.textContent = `Resend (${timeLeft}s)`;
+                    clearInterval(otpCooldownInterval);
+                    otpCooldownInterval = setInterval(() => {
+                        timeLeft--;
+                        if (timeLeft <= 0) {
+                            clearInterval(otpCooldownInterval);
+                            sendOtpBtn.disabled = false;
+                            sendOtpBtn.textContent = 'Resend OTP';
+                        } else {
+                            sendOtpBtn.textContent = `Resend (${timeLeft}s)`;
+                        }
+                    }, 1000);
+                } else {
+                    sendOtpBtn.disabled = false;
+                    sendOtpBtn.textContent = 'Send OTP';
+                    if (alertBox) {
+                        alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-red-50 border border-red-200 text-red-700";
+                        alertBox.textContent = data.error || "Failed to send OTP code. Please try again.";
+                        alertBox.classList.remove('hidden');
+                    }
+                }
+            })
+            .catch(err => {
+                sendOtpBtn.disabled = false;
+                sendOtpBtn.textContent = 'Send OTP';
+                if (alertBox) {
+                    alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-red-50 border border-red-200 text-red-700";
+                    alertBox.textContent = "Network error sending OTP. Please try again.";
+                    alertBox.classList.remove('hidden');
+                }
+            });
+        });
+    }
+
+    // Handle Verify OTP
+    if (verifyOtpBtn) {
+        verifyOtpBtn.addEventListener('click', function() {
+            const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+            const otp = otpInput ? otpInput.value.trim() : '';
+
+            if (!otp || otp.length !== 6) {
+                if (otpStatusMsg) {
+                    otpStatusMsg.className = "text-[11px] font-bold text-red-600 mt-1";
+                    otpStatusMsg.textContent = "Please enter the 6-digit OTP code received in your email.";
+                }
+                return;
+            }
+
+            verifyOtpBtn.disabled = true;
+            verifyOtpBtn.textContent = 'Verifying...';
+
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('otp', otp);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch("{% url 'accounts:documents_assistance_verify_otp' %}", {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                verifyOtpBtn.disabled = false;
+                verifyOtpBtn.textContent = 'Verify OTP';
+
+                if (data.success) {
+                    isAssistanceEmailVerified = true;
+                    verifiedAssistanceEmail = email;
+
+                    if (otpContainer) otpContainer.classList.add('hidden');
+                    if (sendOtpBtn) sendOtpBtn.classList.add('hidden');
+                    if (otpSentMsg) otpSentMsg.classList.add('hidden');
+                    if (verifiedBadge) verifiedBadge.classList.remove('hidden');
+                    if (emailInput) emailInput.readOnly = true;
+
+                    if (alertBox) alertBox.classList.add('hidden');
+                } else {
+                    if (otpStatusMsg) {
+                        otpStatusMsg.className = "text-[11px] font-bold text-red-600 mt-1";
+                        otpStatusMsg.textContent = data.error || "Invalid or expired verification code.";
+                    }
+                }
+            })
+            .catch(err => {
+                verifyOtpBtn.disabled = false;
+                verifyOtpBtn.textContent = 'Verify OTP';
+                if (otpStatusMsg) {
+                    otpStatusMsg.className = "text-[11px] font-bold text-red-600 mt-1";
+                    otpStatusMsg.textContent = "Network error verifying OTP. Please try again.";
+                }
+            });
+        });
+    }
+
+    // Handle Form Submit
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+
+            if (!isAssistanceEmailVerified || email !== verifiedAssistanceEmail) {
+                if (alertBox) {
+                    alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-red-50 border border-red-200 text-red-700";
+                    alertBox.textContent = "Please verify your email address via Gmail OTP before submitting your request.";
+                    alertBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span>Submitting...</span>';
+            }
+
+            const formData = new FormData(form);
+
+            fetch("{% url 'accounts:documents_assistance' %}", {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Request Assistance</span>';
+                }
+
+                if (data.success) {
+                    form.reset();
+                    isAssistanceEmailVerified = false;
+                    verifiedAssistanceEmail = "";
+                    if (emailInput) emailInput.readOnly = false;
+                    if (verifiedBadge) verifiedBadge.classList.add('hidden');
+                    if (sendOtpBtn) {
+                        sendOtpBtn.classList.remove('hidden');
+                        sendOtpBtn.disabled = false;
+                        sendOtpBtn.textContent = 'Send OTP';
+                    }
+
+                    closeModal();
+
+                    if (mainSuccessAlert && mainSuccessText) {
+                        mainSuccessText.textContent = data.message || "Your request for document assistance has been submitted successfully! Our team will contact you soon.";
+                        mainSuccessAlert.classList.remove('hidden');
+                        mainSuccessAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        alert(data.message || "Your request for document assistance has been submitted successfully!");
+                    }
+                } else {
+                    if (alertBox) {
+                        alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-red-50 border border-red-200 text-red-700";
+                        alertBox.textContent = data.error || "An error occurred while submitting your request. Please try again.";
+                        alertBox.classList.remove('hidden');
+                    }
+                }
+            })
+            .catch(err => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Request Assistance</span>';
+                }
+                if (alertBox) {
+                    alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-red-50 border border-red-200 text-red-700";
+                    alertBox.textContent = "Network error. Please try again.";
+                    alertBox.classList.remove('hidden');
+                }
+            });
+        });
+    }
+});
 </script>
 {% endblock %}

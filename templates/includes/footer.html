@@ -2,9 +2,12 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
             <div class="md:col-span-2 space-y-3">
-                <span class="text-base font-black text-white">HOUSING<span class="text-brand-primary">..</span></span>
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 bg-red-600 rounded-lg flex items-center justify-center text-white font-black text-[10px]">THF</div>
+                    <span class="text-base font-black text-white tracking-tight">THE HOME <span class="text-brand-primary">FIRST</span></span>
+                </div>
                 <p class="text-gray-400 text-xs leading-relaxed max-w-sm">
-                    India's most trusted modern real estate marketplace. Discover 100% verified apartments, villas, plots, and commercial spaces with direct owner & verified agent connections.
+                    The Home First (THF) — Your Property. Your Possibilities. India's trusted modern real estate marketplace. Discover 100% verified apartments, villas, plots, and commercial spaces with direct partner connections.
                 </p>
                 <div>
                     <span class="inline-flex items-center space-x-1.5 text-[10px] text-emerald-400 bg-emerald-950 px-3 py-1 rounded-md border border-emerald-800 font-bold">
@@ -21,7 +24,7 @@
                     <li><a href="{% url 'properties:search' %}?listing_purpose=RENT" class="hover:text-white transition">Rental Apartments & PGs</a></li>
                     <li><a href="{% url 'properties:search' %}?listing_purpose=COMMERCIAL" class="hover:text-white transition">Commercial Spaces & Offices</a></li>
                     <li><a href="{% url 'properties:search' %}?listing_purpose=PLOT" class="hover:text-white transition">Residential Plots & Land</a></li>
-                    <li><a href="/brokers/" class="hover:text-white transition">Verified Brokers & Agents</a></li>
+                    <li><a href="/brokers/" class="hover:text-white transition">Real Estate Partners & Agents</a></li>
                 </ul>
             </div>
 
@@ -48,7 +51,7 @@
         </div>
 
         <div class="pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between text-gray-500 gap-4">
-            <p>© 2026 Housing... . All rights reserved.</p>
+            <p>© 2026 The Home First (THF). All rights reserved.</p>
             <div class="flex items-center space-x-6 text-[11px]">
                 <a href="/privacy/" class="hover:text-gray-300">Privacy</a>
                 <a href="/terms/" class="hover:text-gray-300">Terms</a>

@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Verify Registration | Housing{% endblock %}
+{% block title %}Verify Registration | The Home First{% endblock %}
 
 {% block content %}
 <section class="py-16 bg-gray-50 min-h-[75vh] flex items-center justify-center">
     <div class="max-w-md w-full mx-4">
         <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-xl space-y-6 text-center">
-            <!-- Housing Brand Header -->
-            <div class="flex justify-center">
-                <span class="text-2xl font-black tracking-wider text-gray-900">
-                    HOUSING<span class="text-brand-primary">.</span>
+            <!-- Brand Header -->
+            <div class="flex justify-center items-center space-x-2">
+                <div class="w-7 h-7 bg-red-600 rounded-lg flex items-center justify-center text-white font-black text-xs">THF</div>
+                <span class="text-xl font-black tracking-tight text-gray-900">
+                    THE HOME <span class="text-brand-primary">FIRST</span>
                 </span>
             </div>
 
@@ -23,113 +24,66 @@
             </div>
 
             {% if messages %}
-                <div class="space-y-2 text-left">
-                    {% for message in messages %}
-                        <div class="p-3 rounded-xl text-xs font-bold {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-emerald-50 text-emerald-700 border border-emerald-200{% endif %}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
+                {% for message in messages %}
+                    <div class="p-3 rounded-xl text-xs font-bold text-left {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% elif message.tags == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             {% endif %}
 
-            <form method="POST" action="{% url 'accounts:verify_otp' %}" id="otp-form" class="space-y-6">
+            <form method="POST" action="{% url 'accounts:verify_otp' %}" id="otp-form" class="space-y-4">
                 {% csrf_token %}
-                <input type="hidden" name="otp" id="full-otp-input">
 
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Enter 6-Digit Code</label>
-                    <div class="flex justify-center gap-2" id="otp-boxes-container">
-                        <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-box w-11 h-12 text-center text-xl font-black border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition" autofocus>
-                        <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-box w-11 h-12 text-center text-xl font-black border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition">
-                        <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-box w-11 h-12 text-center text-xl font-black border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition">
-                        <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-box w-11 h-12 text-center text-xl font-black border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition">
-                        <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-box w-11 h-12 text-center text-xl font-black border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition">
-                        <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-box w-11 h-12 text-center text-xl font-black border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition">
-                    </div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Enter 6-Digit Code</label>
+                    <input type="text" name="otp" id="otp-input" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required placeholder="••••••" autocomplete="one-time-code" class="w-full text-center text-2xl font-black tracking-[0.5em] py-3.5 bg-gray-50 border-2 border-gray-200 rounded-2xl outline-none focus:border-brand-primary text-gray-900 transition">
                 </div>
 
-                <button type="submit" id="verify-submit-btn" class="w-full bg-brand-primary hover:bg-brand-hover text-white font-bold py-3.5 rounded-xl transition shadow text-sm">
+                <button type="submit" class="w-full bg-brand-primary hover:bg-brand-hover text-white py-3.5 rounded-2xl font-bold text-xs transition shadow-lg shadow-red-500/20">
                     Verify & Complete Registration
                 </button>
             </form>
 
-            <div class="pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                <span>Didn't receive code?</span>
+            <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
+                <span id="cooldown-timer-text" class="text-gray-400 font-semibold">Resend available in <strong id="cooldown-seconds">60</strong>s</span>
+
                 <form method="POST" action="{% url 'accounts:resend_otp' %}" id="resend-form" class="inline">
                     {% csrf_token %}
-                    <button type="submit" id="resend-btn" class="text-brand-primary font-bold hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer">
-                        Resend Code <span id="cooldown-timer"></span>
+                    <input type="hidden" name="purpose" value="REGISTER">
+                    <button type="submit" id="resend-btn" disabled class="text-brand-primary font-bold opacity-50 cursor-not-allowed hover:underline">
+                        Resend Code
                     </button>
                 </form>
             </div>
+
+            <p class="text-[11px] text-gray-400">
+                Wrong email address? <a href="{% url 'accounts:register' %}" class="text-gray-700 font-bold underline">Re-enter details</a>
+            </p>
         </div>
     </div>
 </section>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const boxes = document.querySelectorAll('.otp-box');
-    const fullOtpInput = document.getElementById('full-otp-input');
-    const otpForm = document.getElementById('otp-form');
+    const input = document.getElementById('otp-input');
     const resendBtn = document.getElementById('resend-btn');
-    const cooldownTimer = document.getElementById('cooldown-timer');
+    const timerText = document.getElementById('cooldown-seconds');
+    let secondsLeft = 60;
 
-    boxes.forEach((box, index) => {
-        box.addEventListener('input', function(e) {
-            const val = this.value.replace(/[^0-9]/g, '');
-            this.value = val;
-            if (val && index < boxes.length - 1) {
-                boxes[index + 1].focus();
+    input.focus();
+
+    const countdown = setInterval(function() {
+        secondsLeft--;
+        if (timerText) timerText.textContent = secondsLeft;
+
+        if (secondsLeft <= 0) {
+            clearInterval(countdown);
+            if (resendBtn) {
+                resendBtn.disabled = false;
+                resendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-            updateFullOtp();
-        });
-
-        box.addEventListener('keydown', function(e) {
-            if (e.key === 'Backspace' && !this.value && index > 0) {
-                boxes[index - 1].focus();
-            }
-        });
-
-        box.addEventListener('paste', function(e) {
-            e.preventDefault();
-            const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim().replace(/[^0-9]/g, '');
-            if (pasteData) {
-                for (let i = 0; i < Math.min(pasteData.length, boxes.length); i++) {
-                    boxes[i].value = pasteData[i];
-                }
-                const nextIndex = Math.min(pasteData.length, boxes.length - 1);
-                boxes[nextIndex].focus();
-                updateFullOtp();
-            }
-        });
-    });
-
-    function updateFullOtp() {
-        let code = '';
-        boxes.forEach(b => code += b.value);
-        fullOtpInput.value = code;
-    }
-
-    otpForm.addEventListener('submit', function(e) {
-        updateFullOtp();
-        if (fullOtpInput.value.length < 6) {
-            e.preventDefault();
-            alert('Please enter all 6 digits of your verification code.');
-        }
-    });
-
-    // 60-second Resend Cooldown Timer
-    let countdown = 60;
-    resendBtn.disabled = true;
-
-    const timerInterval = setInterval(function() {
-        countdown--;
-        if (countdown > 0) {
-            cooldownTimer.textContent = `(${countdown}s)`;
-        } else {
-            clearInterval(timerInterval);
-            cooldownTimer.textContent = '';
-            resendBtn.disabled = false;
+            const cooldownSpan = document.getElementById('cooldown-timer-text');
+            if (cooldownSpan) cooldownSpan.textContent = "Didn't receive code?";
         }
     }, 1000);
 });

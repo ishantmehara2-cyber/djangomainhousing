@@ -1,0 +1,210 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Request Details: {{ lead.lead_id }} | Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Header & Navigation -->
+    <div class="flex items-center justify-between">
+        <div>
+            <a href="{% url 'accounts:admin_documents_pending_leads' %}" class="text-xs font-bold text-gray-500 hover:text-gray-900 transition flex items-center space-x-1">
+                <span>← Back to Documents Pending Leads</span>
+            </a>
+            <div class="flex items-center space-x-3 mt-1">
+                <h1 class="text-2xl font-black text-gray-900 font-mono tracking-tight">#{{ lead.lead_id }}</h1>
+                <span class="text-xs font-bold text-gray-500">Submitted: {{ lead.created_at|date:"M d, Y @ h:i A" }}</span>
+            </div>
+        </div>
+
+        <div>
+            <span class="px-4 py-2 rounded-full font-extrabold text-xs uppercase
+                {% if lead.status == 'NEW' %}bg-blue-100 text-blue-800
+                {% elif lead.status == 'CONTACTED' %}bg-indigo-100 text-indigo-800
+                {% elif lead.status == 'REGISTRATION_COMPLETED' %}bg-emerald-100 text-emerald-800
+                {% elif lead.status == 'CLOSED' %}bg-gray-100 text-gray-700
+                {% else %}bg-amber-100 text-amber-800{% endif %}">
+                {{ lead.get_status_display }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Applicant & Verification Information Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Applicant Info -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-3">
+            <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Applicant Details</h2>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Full Name</span>
+                    <span class="font-extrabold text-gray-900 text-sm block">{{ lead.full_name }}</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Mobile Number</span>
+                    <a href="tel:{{ lead.mobile_number }}" class="font-bold text-brand-primary text-sm hover:underline block">{{ lead.mobile_number }}</a>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Email Address</span>
+                    <a href="mailto:{{ lead.email_address }}" class="font-bold text-gray-800 hover:underline block">{{ lead.email_address }}</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification & Business Details -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-3">
+            <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Verification & Business Details</h2>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Email Verification Status</span>
+                    {% if lead.email_verified %}
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800 space-x-1 mt-1">
+                            <span>✓ Email Verified</span>
+                        </span>
+                        {% if lead.email_verified_at %}
+                            <span class="text-[10px] text-gray-400 block mt-0.5">Verified on {{ lead.email_verified_at|date:"M d, Y @ h:i A" }}</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-red-100 text-red-800 mt-1">
+                            <span>Unverified</span>
+                        </span>
+                    {% endif %}
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Business / Agency Name</span>
+                    <span class="font-extrabold text-gray-900 text-sm block">{{ lead.agency_name|default:"Not specified" }}</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Operating City</span>
+                    <span class="font-bold text-gray-800 text-sm block">{{ lead.city_name }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status & Assignment -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-3">
+            <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Reference & Assignment</h2>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Internal Reference ID</span>
+                    <span class="font-mono font-extrabold text-brand-primary text-sm block">#{{ lead.lead_id }}</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Assigned Staff</span>
+                    <span class="font-bold text-gray-800 block">{% if lead.assigned_staff %}{{ lead.assigned_staff.get_full_name|default:lead.assigned_staff }}{% else %}Unassigned{% endif %}</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase block">Follow-up Date</span>
+                    <span class="font-bold text-amber-700 block">{{ lead.follow_up_date|date:"M d, Y"|default:"No follow-up set" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applicant Message -->
+    {% if lead.message %}
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-2">
+            <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Applicant Message / Additional Details</h2>
+            <p class="text-xs text-gray-700 font-medium leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 whitespace-pre-wrap">{{ lead.message }}</p>
+        </div>
+    {% endif %}
+
+    <!-- Update Status & Manage Request Form -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
+        <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Update Request Status & Assignment</h2>
+
+        <form method="POST" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_status">
+
+            <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status</label>
+                <select name="status" class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-xs font-bold outline-none focus:border-brand-primary">
+                    {% for st_val, st_lbl in status_choices %}
+                        <option value="{{ st_val }}" {% if lead.status == st_val %}selected{% endif %}>{{ st_lbl }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Follow-up Date</label>
+                <input type="date" name="follow_up_date" value="{{ lead.follow_up_date|date:'Y-m-d' }}" class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-xs font-bold outline-none focus:border-brand-primary">
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Assign Staff</label>
+                <select name="assigned_staff" class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-xs font-bold outline-none focus:border-brand-primary">
+                    <option value="">-- Unassigned --</option>
+                    {% for staff in staff_users %}
+                        <option value="{{ staff.id }}" {% if lead.assigned_staff_id == staff.id %}selected{% endif %}>{{ staff.get_full_name|default:staff.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="sm:col-span-3">
+                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status Change Notes</label>
+                <textarea name="status_notes" rows="2" placeholder="Reason or details regarding this status change..." class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-xl text-xs font-bold outline-none focus:border-brand-primary"></textarea>
+            </div>
+
+            <div class="sm:col-span-3 text-right">
+                <button type="submit" class="bg-brand-primary hover:bg-brand-hover text-white font-extrabold text-xs px-6 py-2.5 rounded-xl transition shadow-sm">
+                    Save Request Updates
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Notes & History -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Internal Notes -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
+            <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Internal Admin Notes</h2>
+
+            <form method="POST" class="space-y-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_note">
+                <textarea name="note_text" rows="3" required placeholder="Add an internal note..." class="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-xs font-bold outline-none focus:border-brand-primary"></textarea>
+                <button type="submit" class="bg-gray-900 hover:bg-black text-white font-bold text-xs px-4 py-2 rounded-xl transition">
+                    Add Note
+                </button>
+            </form>
+
+            <div class="space-y-3 pt-2">
+                {% for note in notes %}
+                    <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-xs space-y-1">
+                        <div class="flex items-center justify-between text-[10px] text-gray-400 font-bold">
+                            <span>{{ note.author.get_full_name|default:note.author.username }}</span>
+                            <span>{{ note.created_at|date:"M d, Y @ h:i A" }}</span>
+                        </div>
+                        <p class="text-gray-800 font-medium whitespace-pre-wrap">{{ note.note_text }}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-xs text-gray-400 italic">No internal notes added yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Status History -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
+            <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider border-b pb-2">Status History Timeline</h2>
+
+            <div class="space-y-3">
+                {% for item in history %}
+                    <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-xs space-y-1">
+                        <div class="flex items-center justify-between text-[10px] text-gray-400 font-bold">
+                            <span>Updated by: {% if item.updated_by %}{{ item.updated_by.get_full_name|default:item.updated_by.username }}{% else %}System{% endif %}</span>
+                            <span>{{ item.created_at|date:"M d, Y @ h:i A" }}</span>
+                        </div>
+                        <div class="font-extrabold text-gray-900">
+                            {% if item.old_status %}{{ item.old_status }} → {% endif %}<span class="text-brand-primary">{{ item.new_status }}</span>
+                        </div>
+                        {% if item.notes %}
+                            <p class="text-gray-600 text-[11px] italic">{{ item.notes }}</p>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="text-xs text-gray-400 italic">No history entries logged.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

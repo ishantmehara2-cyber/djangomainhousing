@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Admin Control Panel | Housing...{% endblock %}</title>
+    <title>{% block title %}Admin Panel | The Home First (THF){% endblock %}</title>
+
+    <!-- Browser Favicon (THF Monogram) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23111827'/><text x='50%' y='64%' font-size='40' font-weight='900' font-family='Arial, sans-serif' fill='%23e02424' text-anchor='middle'>THF</text></svg>">
+
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900 font-sans antialiased min-h-screen flex">
@@ -11,10 +15,10 @@
     <aside class="w-64 bg-gray-900 text-gray-300 flex flex-col justify-between hidden md:flex border-r border-gray-800">
         <div class="p-6 space-y-6">
             <a href="{% url 'moderation:dashboard' %}" class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-brand-primary bg-red-600 rounded-xl flex items-center justify-center text-white font-black">
-                    A
+                <div class="w-8 h-8 bg-red-600 rounded-xl flex items-center justify-center text-white font-black text-xs">
+                    THF
                 </div>
-                <span class="text-base font-black text-white tracking-wider">ADMIN PANEL</span>
+                <span class="text-base font-black text-white tracking-wider">THE HOME FIRST</span>
             </a>
             <nav class="space-y-1 text-xs font-bold">
                 <a href="{% url 'moderation:dashboard' %}" class="block px-4 py-2.5 rounded-xl hover:bg-gray-800 transition text-white">📊 Overview</a>
@@ -22,6 +26,7 @@
                 <a href="{% url 'moderation:all-properties' %}" class="block px-4 py-2.5 rounded-xl hover:bg-gray-800 transition text-white">🏠 All Properties</a>
                 <a href="{% url 'moderation:users' %}" class="block px-4 py-2.5 rounded-xl hover:bg-gray-800 transition text-white">👥 User Management</a>
                 <a href="{% url 'accounts:admin_partner_applications' %}" class="block px-4 py-2.5 rounded-xl hover:bg-gray-800 transition text-white">🤝 Partner Verification</a>
+                <a href="{% url 'accounts:admin_documents_pending_leads' %}" class="block px-4 py-2.5 rounded-xl hover:bg-gray-800 transition text-white">📋 Documents Pending Leads</a>
                 <a href="{% url 'moderation:enquiries' %}" class="block px-4 py-2.5 rounded-xl hover:bg-gray-800 transition text-white">📩 Enquiries</a>
                 <a href="{% url 'moderation:visits' %}" class="block px-4 py-2.5 rounded-xl hover:bg-gray-800 transition text-white">📅 Property Visits</a>
                 <a href="{% url 'moderation:reports' %}" class="block px-4 py-2.5 rounded-xl hover:bg-gray-800 transition text-white">🚩 Flagged Reports</a>
@@ -42,7 +47,7 @@
     <!-- Main Content Area -->
     <div class="flex-grow flex flex-col min-h-screen">
         <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8 shadow-sm">
-            <span class="text-sm font-black text-gray-800 uppercase tracking-wide">Housing... Administration Suite</span>
+            <span class="text-sm font-black text-gray-800 uppercase tracking-wide">The Home First (THF) Administration Suite</span>
             <div class="flex items-center space-x-4 text-xs font-bold">
                 <span class="text-gray-600">Admin: {{ user.username }}</span>
                 <form method="POST" action="{% url 'accounts:logout' %}" class="inline">
