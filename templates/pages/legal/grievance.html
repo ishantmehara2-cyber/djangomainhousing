@@ -1,10 +1,29 @@
 {% extends 'base.html' %}
-{% block title %}Grievance Redressal | The Home First{% endblock %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}Grievance Redressal | The Home First{% endif %}{% endblock %}
+
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 py-12 space-y-8">
-    <div class="border-b border-gray-200 pb-6"><h1 class="text-3xl font-black text-gray-900">Grievance or Complaint Contact</h1></div>
-    <div class="prose max-w-none text-gray-700 text-sm space-y-4 leading-relaxed">
-        <p>In accordance with applicable regulations, if you have any complaints or grievances regarding listings or platform behavior, please contact our Grievance Officer at grievance@thehomefirst.com.</p>
+    <div class="border-b border-gray-200 pb-6">
+        <h1 class="text-3xl font-black text-gray-900 tracking-tight">Grievance & Complaint Redressal</h1>
+        <p class="text-xs text-gray-500 mt-2">The Home First ("THF") is operated by <strong>AINexTech LLP</strong>.</p>
+    </div>
+
+    <div class="prose max-w-none text-gray-700 text-sm leading-relaxed space-y-6">
+        <p>In accordance with applicable law and information technology regulations, if you have any complaints, concerns, or grievances regarding property listings, user conduct, or platform services, please reach out to our designated Grievance Desk.</p>
+
+        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-3">
+            <h2 class="text-lg font-bold text-gray-900">Grievance Redressal Contact Details</h2>
+            <div class="text-xs text-gray-800 font-medium space-y-1.5">
+                <p><strong>Operating Company:</strong> AINexTech LLP</p>
+                <p><strong>Registered/Business Address:</strong> Shop 10, Bhoomi Acres, Phase 2, Waghbil Road, Hiranandani Estate, Thane West, Thane - 400615</p>
+                <p><strong>Official Contact Email:</strong> <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary underline">connectthehomefirst@gmail.com</a></p>
+                <p><strong>Contact Phone:</strong> <a href="tel:+917738230656" class="text-brand-primary underline">+91-77382 30656</a></p>
+                <p><strong>Grievance Officer:</strong> [Insert Name]</p>
+                <p><strong>Grievance Response Time:</strong> Within 48 hours of acknowledgment</p>
+            </div>
+        </div>
+
+        <p class="text-xs text-gray-500">Please provide full details of your query, including relevant listing URLs, user reference numbers, and supporting documentation where applicable.</p>
     </div>
 </div>
 {% endblock %}

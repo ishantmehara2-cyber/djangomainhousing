@@ -22,6 +22,7 @@ from apps.properties.forms import PropertySearchForm
 from apps.properties.services.recommendation_service import PropertyRecommendationService
 from apps.properties.services.lets_api_adapter import LetsApiAdapter
 from apps.properties.utils import validate_property_image
+from apps.core.seo_helpers import build_property_seo_context
 
 def render_template(request, template_name, context):
     template = get_template(template_name)
@@ -179,6 +180,8 @@ def property_detail_view(request, slug):
     if request.user.is_authenticated:
         is_favorited = Favorite.objects.filter(user=request.user, property=property_item).exists()
 
+    seo_data = build_property_seo_context(request, property_item, media_items)
+
     context = {
         'request': request,
         'user': request.user,
@@ -188,6 +191,7 @@ def property_detail_view(request, slug):
         'similar_properties': similar_properties,
         'is_favorited': is_favorited,
         'is_preview': not is_public,
+        'seo': seo_data['seo'],
     }
     return render_template(request, 'pages/property_detail.html', context)
 

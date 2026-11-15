@@ -1,22 +1,161 @@
 {% extends 'base.html' %}
-{% block title %}About Us | The Home First{% endblock %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}About Us | The Home First{% endif %}{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-12 space-y-8">
+<div class="max-w-4xl mx-auto px-4 py-12 space-y-10">
+    <!-- Header -->
     <div class="border-b border-gray-200 pb-6">
-        <h1 class="text-3xl font-black text-gray-900">About The Home First (THF)</h1>
-        <p class="text-sm text-gray-500 mt-2">Your Property. Your Possibilities. — India's modern real estate marketplace.</p>
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">About The Home First</h1>
+        <p class="text-base font-semibold text-brand-primary mt-2">Your Property. Your Possibilities.</p>
+        <p class="text-xs text-gray-600 mt-1 font-medium">The Home First is a real estate platform operated by <strong>AINexTech LLP</strong>.</p>
+        <p class="text-xs text-gray-500 mt-1">Website: <a href="https://www.thehomefirst.com/" class="underline hover:text-brand-primary" target="_blank" rel="noopener">www.thehomefirst.com</a> | Email: <a href="mailto:connectthehomefirst@gmail.com" class="underline hover:text-brand-primary">connectthehomefirst@gmail.com</a> | Phone: <a href="tel:+917738230656" class="underline hover:text-brand-primary">+91-77382 30656</a></p>
     </div>
-    <div class="prose max-w-none text-gray-700 text-sm space-y-4 leading-relaxed">
-        <p>The Home First (THF) is a comprehensive real estate platform built to simplify home buying, renting, property listing, and direct CRM management. We bridge the gap between buyers, tenants, owners, and verified partners with transparent listings and robust security.</p>
-        <h3 class="text-lg font-bold text-gray-900 mt-6">Our Mission</h3>
-        <p>To empower every real estate participant with verified data, seamless communication, and a frictionless digital marketplace experience.</p>
-        <h3 class="text-lg font-bold text-gray-900 mt-6">Why Choose Us?</h3>
-        <ul class="list-disc pl-5 space-y-2">
-            <li>100% Verified Property Listings with moderation checks</li>
-            <li>Direct Owner & Verified Partner connectivity</li>
-            <li>Advanced recommendation engine & saved searches</li>
-            <li>Secure Django-powered architecture & role-based access control</li>
+
+    <!-- Intro -->
+    <div class="prose max-w-none text-gray-700 text-sm leading-relaxed space-y-4">
+        <p>Welcome to <strong>The Home First</strong>, a digital platform designed to make your property journey simpler, smarter and more convenient.</p>
+        <p>Finding the right property, connecting with the right people, exploring home loan options and arranging rental documentation can often involve multiple platforms and complicated processes.</p>
+        <p>At The Home First, our aim is to bring these property-related services together in one convenient destination.</p>
+        <p>Whether you are looking to buy your dream home, find a rental property, explore commercial spaces, showcase property listings or enquire about home loan assistance, we aim to make your journey easier.</p>
+        <p>We believe that every property decision begins with the right information, meaningful connections and a platform that helps people take their next step with confidence.</p>
+    </div>
+
+    <!-- Our Vision -->
+    <div class="bg-gray-50 p-6 sm:p-8 rounded-2xl border border-gray-200 space-y-3">
+        <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-2 h-6 bg-brand-primary rounded-full inline-block"></span>
+            Our Vision
+        </h2>
+        <p class="text-sm text-gray-700 leading-relaxed">
+            To build a convenient and accessible digital destination for property discovery and related real estate services, connecting people with opportunities and helping simplify property-related decisions.
+        </p>
+    </div>
+
+    <!-- Our Mission -->
+    <div class="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 space-y-4">
+        <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-2 h-6 bg-brand-primary rounded-full inline-block"></span>
+            Our Mission
+        </h2>
+        <p class="text-sm text-gray-700">Our mission is to make property discovery and related services easier by:</p>
+        <ul class="space-y-2 text-sm text-gray-700 list-disc pl-5">
+            <li>Bringing property buyers, sellers, tenants, owners and Real Estate Partners together.</li>
+            <li>Making residential and commercial property discovery convenient.</li>
+            <li>Providing access to home loan enquiry facilities and banking partner information.</li>
+            <li>Offering rental agreement-related service enquiries.</li>
+            <li>Helping eligible Real Estate Partners showcase their property listings.</li>
+            <li>Creating a user-friendly and transparent digital experience.</li>
+            <li>Continuously improving the way people discover and enquire about properties.</li>
         </ul>
+    </div>
+
+    <!-- What We Offer -->
+    <div class="space-y-6">
+        <h2 class="text-2xl font-black text-gray-900 tracking-tight">What We Offer</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 space-y-2">
+                <h3 class="font-bold text-base text-gray-900">1. Buy Properties</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">Looking for a property to call your own? Explore available residential and commercial property listings, review the information provided and connect with the relevant property owner or representative.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 space-y-2">
+                <h3 class="font-bold text-base text-gray-900">2. Rent Properties</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">Discover properties available for rent according to your requirements. Explore available listings, review property details and submit an enquiry to connect with the relevant representative.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 space-y-2">
+                <h3 class="font-bold text-base text-gray-900">3. Sell or List Properties</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">Property owners and authorised representatives can explore opportunities to showcase their properties through The Home First. Eligible Real Estate Partners can register on the platform and, after completing the required verification and approval process, access property listing facilities.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 space-y-2">
+                <h3 class="font-bold text-base text-gray-900">4. Commercial Properties</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">Explore commercial property opportunities, including spaces suitable for offices, shops and other business requirements, subject to the listings available on the platform.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 space-y-2 md:col-span-2">
+                <h3 class="font-bold text-base text-gray-900">5. Home Loan Assistance</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">Planning to purchase a property and exploring financing options? The Home First provides access to banking partner information and a facility to submit home loan enquiries.</p>
+                <p class="text-sm text-gray-600 leading-relaxed">Customers can share their basic requirements through the home loan enquiry form. The relevant team or financial institution may contact them regarding the enquiry.</p>
+                <p class="text-sm font-semibold text-gray-800 bg-gray-50 p-3 rounded-xl border border-gray-100">Loan eligibility, interest rates, processing charges, approval and disbursement are determined by the concerned financial institution. The Home First is not itself a bank or lending institution.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 space-y-2 md:col-span-2">
+                <h3 class="font-bold text-base text-gray-900">6. Rental Agreement Services</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">A rental agreement is an important part of the rental process. The Home First provides access to rental agreement-related services so customers can submit their requirements and enquire about the assistance available.</p>
+                <p class="text-xs text-gray-500">Applicable charges, document requirements, service scope and timelines will be communicated before a paid service is confirmed.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 space-y-2 md:col-span-2">
+                <h3 class="font-bold text-base text-gray-900">7. Real Estate Partner Network</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">The Home First provides an opportunity for eligible real estate professionals and authorised property representatives to register and showcase property listings.</p>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Registration may require government or business registration documents, such as:</p>
+                <ul class="list-disc pl-5 text-xs text-gray-600 space-y-1">
+                    <li>Gumasta / Shop and Establishment registration</li>
+                    <li>MSME registration</li>
+                    <li>Udyam registration</li>
+                    <li>GST registration</li>
+                </ul>
+                <p class="text-xs text-gray-500 italic mt-1">Submitted documents are subject to review. Registration does not automatically guarantee approval or permission to publish properties.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How The Home First Works -->
+    <div class="bg-gray-900 text-white p-6 sm:p-8 rounded-3xl space-y-6">
+        <h2 class="text-2xl font-black tracking-tight">How The Home First Works</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl space-y-1 text-center">
+                <span class="text-xs font-black text-brand-primary uppercase">Step 1</span>
+                <h4 class="font-bold text-sm text-white">Explore</h4>
+                <p class="text-[11px] text-gray-300">Visit website & browse residential & commercial listings.</p>
+            </div>
+
+            <div class="bg-gray-800 p-4 rounded-xl space-y-1 text-center">
+                <span class="text-xs font-black text-brand-primary uppercase">Step 2</span>
+                <h4 class="font-bold text-sm text-white">Discover</h4>
+                <p class="text-[11px] text-gray-300">Use search & filtering options according to your requirements.</p>
+            </div>
+
+            <div class="bg-gray-800 p-4 rounded-xl space-y-1 text-center">
+                <span class="text-xs font-black text-brand-primary uppercase">Step 3</span>
+                <h4 class="font-bold text-sm text-white">Enquire</h4>
+                <p class="text-[11px] text-gray-300">Submit details through property or service enquiry form.</p>
+            </div>
+
+            <div class="bg-gray-800 p-4 rounded-xl space-y-1 text-center">
+                <span class="text-xs font-black text-brand-primary uppercase">Step 4</span>
+                <h4 class="font-bold text-sm text-white">Connect</h4>
+                <p class="text-[11px] text-gray-300">Relevant team or representative contacts you.</p>
+            </div>
+
+            <div class="bg-gray-800 p-4 rounded-xl space-y-1 text-center">
+                <span class="text-xs font-black text-brand-primary uppercase">Step 5</span>
+                <h4 class="font-bold text-sm text-white">Proceed</h4>
+                <p class="text-[11px] text-gray-300">Verify details, discuss terms and take your next step.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Our Commitment -->
+    <div class="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 space-y-3">
+        <h2 class="text-xl font-bold text-gray-900">Our Commitment</h2>
+        <p class="text-sm text-gray-700 leading-relaxed">
+            We aim to provide a convenient, organised and user-friendly platform for property discovery and related enquiries.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed">
+            We encourage genuine property listings, responsible listing practices and accurate information from users and Real Estate Partners.
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed">
+            We continuously work towards improving our services and creating a better property discovery experience.
+        </p>
+        <p class="text-base font-extrabold text-brand-primary pt-2">The Home First — Your Property. Your Possibilities.</p>
+        <div class="pt-4 border-t border-gray-200 text-xs text-gray-600 space-y-1">
+            <p><strong>Operating Entity:</strong> AINexTech LLP</p>
+            <p><strong>Registered Address:</strong> Shop 10, Bhoomi Acres, Phase 2, Waghbil Road, Hiranandani Estate, Thane West, Thane - 400615</p>
+            <p><strong>Contact Email:</strong> <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary underline">connectthehomefirst@gmail.com</a> | <strong>Phone:</strong> <a href="tel:+917738230656" class="text-brand-primary underline">+91-77382 30656</a></p>
+        </div>
     </div>
 </div>
 {% endblock %}

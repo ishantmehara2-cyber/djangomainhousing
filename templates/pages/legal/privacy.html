@@ -1,17 +1,228 @@
 {% extends 'base.html' %}
-{% block title %}Privacy Policy | The Home First{% endblock %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}Privacy Policy | The Home First{% endif %}{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-12 space-y-8">
+<div class="max-w-4xl mx-auto px-4 py-12 space-y-10">
+    <!-- Header -->
     <div class="border-b border-gray-200 pb-6">
-        <h1 class="text-3xl font-black text-gray-900">Privacy Policy</h1>
-        <p class="text-sm text-gray-500 mt-2">How we protect and manage your personal data.</p>
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Privacy Policy</h1>
+        <p class="text-xs text-gray-500 mt-2">The Home First ("THF", "we", "our" or "us") | Website: <a href="https://www.thehomefirst.com/" class="underline hover:text-brand-primary" target="_blank" rel="noopener">https://www.thehomefirst.com/</a></p>
     </div>
-    <div class="prose max-w-none text-gray-700 text-sm space-y-4 leading-relaxed">
-        <p>At The Home First (THF), we respect your privacy and are committed to safeguarding your personal data.</p>
-        <h3 class="text-lg font-bold text-gray-900 mt-6">Information We Collect</h3>
-        <p>We collect account details (name, email, phone number), property preferences, saved searches, and communication history to improve your marketplace experience.</p>
-        <h3 class="text-lg font-bold text-gray-900 mt-6">Data Security</h3>
-        <p>We implement robust encryption, CSRF protection, secure cookies, and restricted role-based access control to secure your information.</p>
+
+    <div class="prose max-w-none text-gray-700 text-sm leading-relaxed space-y-8">
+        <!-- 1. Introduction -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">1. Introduction</h2>
+            <p>Welcome to The Home First ("THF", "we", "our" or "us"), a real estate platform operated by <strong>AINexTech LLP</strong>.</p>
+            <p>We respect your privacy and are committed to handling your personal information responsibly.</p>
+            <p>This Privacy Policy explains how we collect, use, store, process and share information when you visit or use our website, <a href="https://www.thehomefirst.com/" class="text-brand-primary hover:underline" target="_blank">https://www.thehomefirst.com/</a>, create an account, submit an enquiry, register as a Real Estate Partner or use any of our services.</p>
+            <p>By accessing or using our website, you acknowledge that you have read this Privacy Policy.</p>
+        </section>
+
+        <!-- 2. Information We Collect -->
+        <section class="space-y-4">
+            <h2 class="text-xl font-bold text-gray-900">2. Information We Collect</h2>
+            <p>Depending on how you use our website, we may collect the following categories of information.</p>
+
+            <div class="space-y-4 pl-2">
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-1">
+                    <h3 class="font-bold text-gray-900">A. Personal Information</h3>
+                    <ul class="list-disc pl-5 text-xs text-gray-600 space-y-1">
+                        <li>Full name.</li>
+                        <li>Mobile number.</li>
+                        <li>Email address.</li>
+                        <li>Residential or business address, where required.</li>
+                        <li>City, state, locality and PIN code.</li>
+                        <li>Other information voluntarily provided through website forms.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-1">
+                    <h3 class="font-bold text-gray-900">B. Account Information</h3>
+                    <p class="text-xs text-gray-600">If you create an account, we may collect:</p>
+                    <ul class="list-disc pl-5 text-xs text-gray-600 space-y-1">
+                        <li>Registered email address or username.</li>
+                        <li>Securely stored authentication credentials.</li>
+                        <li>Account type.</li>
+                        <li>Account status.</li>
+                        <li>Relevant account settings and activity.</li>
+                    </ul>
+                    <p class="text-xs text-gray-500 italic mt-2">Passwords should be stored using secure password hashing and must not be stored in readable plain text.</p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-1">
+                    <h3 class="font-bold text-gray-900">C. Real Estate Partner Information</h3>
+                    <p class="text-xs text-gray-600">Individuals registering as Real Estate Partners may be asked to provide:</p>
+                    <ul class="list-disc pl-5 text-xs text-gray-600 space-y-1">
+                        <li>Full name.</li>
+                        <li>Mobile number.</li>
+                        <li>Email address.</li>
+                        <li>Business or agency name.</li>
+                        <li>Business address.</li>
+                        <li>City, state, locality and PIN code.</li>
+                        <li>Government or business registration documents (Gumasta / Shop and Establishment registration, MSME, Udyam or GST documentation).</li>
+                        <li>Additional information reasonably required for verification.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-1">
+                    <h3 class="font-bold text-gray-900">D. Property Information</h3>
+                    <p class="text-xs text-gray-600">When a property is submitted for listing, we may collect:</p>
+                    <ul class="list-disc pl-5 text-xs text-gray-600 space-y-1">
+                        <li>Property title and description.</li>
+                        <li>Property category and transaction type.</li>
+                        <li>Property location.</li>
+                        <li>Price or rental amount.</li>
+                        <li>Property specifications, amenities and facilities.</li>
+                        <li>Property photographs and uploaded media.</li>
+                        <li>Ownership or authorisation-related information, where requested.</li>
+                        <li>Contact information of the submitting user or representative.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-2">
+                    <h3 class="font-bold text-gray-900">E. Enquiry Information</h3>
+                    <p class="text-xs text-gray-600">We collect information relevant to the enquiry you submit:</p>
+                    <ul class="list-disc pl-5 text-xs text-gray-600 space-y-1">
+                        <li><strong>Home Loan Enquiries:</strong> Full name, mobile number, email address, employment type, net monthly income, desired loan amount, preferred bank.</li>
+                        <li><strong>Rental Agreement Enquiries:</strong> Name and contact details, property/rental details, required service details, submitted form details.</li>
+                        <li><strong>Government Document Assistance Requests:</strong> Full name, mobile number, email address, business/agency name, city, assistance requirements.</li>
+                        <li><strong>Property Enquiries:</strong> Contact information, property reference/listing info, enquiry message, voluntary details.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-1">
+                    <h3 class="font-bold text-gray-900">F. Technical Information</h3>
+                    <p class="text-xs text-gray-600">When you visit our website, certain technical information may be collected automatically, such as IP address, browser type and version, device type, operating system, pages visited, date and time of access, website interaction data, and cookies.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. How We Use Your Information -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">3. How We Use Your Information</h2>
+            <p>We may use collected information for the following purposes:</p>
+            <ol class="list-decimal pl-5 text-xs text-gray-700 space-y-1.5">
+                <li>Creating and managing user accounts.</li>
+                <li>Reviewing Real Estate Partner registrations.</li>
+                <li>Verifying documents submitted during registration.</li>
+                <li>Receiving and managing property listings.</li>
+                <li>Responding to property enquiries.</li>
+                <li>Processing home loan enquiries.</li>
+                <li>Responding to rental agreement service requests.</li>
+                <li>Handling government or business document assistance requests.</li>
+                <li>Sending email verification codes.</li>
+                <li>Sending enquiry confirmations and service-related updates.</li>
+                <li>Communicating with users regarding their requests.</li>
+                <li>Maintaining website security.</li>
+                <li>Preventing fraudulent activity and misuse.</li>
+                <li>Improving website functionality and user experience.</li>
+                <li>Maintaining business records.</li>
+                <li>Meeting applicable legal obligations.</li>
+            </ol>
+        </section>
+
+        <!-- 4. Email Verification and Notifications -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">4. Email Verification and Notifications</h2>
+            <p>Certain forms and account processes may require email verification.</p>
+            <ul class="list-disc pl-5 text-xs text-gray-700 space-y-1">
+                <li>A one-time verification code may be sent to the email address provided.</li>
+                <li>The code is intended to verify access to that email address.</li>
+                <li>The code may have a limited validity period.</li>
+                <li>Verification information is used for the relevant verification process.</li>
+            </ul>
+            <p class="text-xs text-gray-600">We may also send enquiry confirmations, account notifications and service-related communications.</p>
+            <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 font-medium">
+                Users should never share passwords or verification codes with anyone claiming to represent The Home First through an ordinary email or message.
+            </div>
+        </section>
+
+        <!-- 5. How We Share Information -->
+        <section class="space-y-4">
+            <h2 class="text-xl font-bold text-gray-900">5. How We Share Information</h2>
+            <p>We do not intend to sell personal information as a standalone product. Information may be shared in limited circumstances.</p>
+
+            <div class="space-y-3">
+                <div>
+                    <h3 class="font-bold text-gray-900 text-sm">A. Property Owners and Representatives</h3>
+                    <p class="text-xs text-gray-600">When you submit an enquiry about a property, relevant contact information and enquiry details may be shared with the concerned property owner, Real Estate Partner or authorised representative so that they can respond.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-gray-900 text-sm">B. Banks and Financial Institutions</h3>
+                    <p class="text-xs text-gray-600">When you submit a home loan enquiry, relevant information may be shared with the concerned financial institution or authorised representative where necessary to handle your request and where permitted by applicable law.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-gray-900 text-sm">C. Service Providers</h3>
+                    <p class="text-xs text-gray-600">We may use third-party providers for website hosting, email delivery, maintenance, security, analytics, technical support, and payment processing (if applicable).</p>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-gray-900 text-sm">D. Legal Requirements</h3>
+                    <p class="text-xs text-gray-600">Information may be disclosed where required by applicable law, a valid legal process, a court order or a lawful request from an authorised government authority.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-gray-900 text-sm">E. Business Transfers</h3>
+                    <p class="text-xs text-gray-600">If the business undergoes a merger, acquisition, restructuring or transfer, relevant information may be transferred subject to applicable legal requirements.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6 to 12 Sections -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">6. Cookies and Similar Technologies</h2>
+            <p>Our website may use cookies or similar technologies to maintain user sessions, remember preferences, improve functionality, understand usage, and support website security and performance.</p>
+            <p class="text-xs text-gray-600">You may manage cookies through your browser settings. Disabling certain cookies may affect website functionality.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">7. Data Security</h2>
+            <p>We take reasonable technical and organisational measures to protect information against unauthorised access, disclosure, alteration, loss or misuse, including access restrictions, authentication controls, secure password handling, secure data transmission, file upload validation, and security monitoring.</p>
+            <p class="text-xs text-gray-500 italic">However, no internet-based platform or electronic storage system can be guaranteed to be completely secure.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">8. Data Retention</h2>
+            <p>We retain information only for as long as reasonably necessary for account administration, enquiry management, service delivery, verification, record keeping, dispute resolution, and legal obligations.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">9. Your Rights and Choices</h2>
+            <p>Subject to applicable law, you may request access to, correction of, or deletion of your personal information, or withdraw consent. Contact us regarding privacy-related requests.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">10. Third-Party Websites</h2>
+            <p>Our website may contain links to external websites, including banking partners and service providers. We do not control their privacy practices. Please review third-party privacy policies before submitting personal information.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">11. Children's Privacy</h2>
+            <p>Our website is not specifically directed towards children. Where applicable law requires parental consent or additional safeguards, we will follow applicable requirements.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">12. Changes to This Privacy Policy</h2>
+            <p>We may update this Privacy Policy from time to time. Any revised version will be published on this page with an updated date.</p>
+        </section>
+
+        <!-- 13. Contact and Grievance Redressal -->
+        <section class="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">13. Contact and Grievance Redressal</h2>
+            <p class="text-xs text-gray-700">For privacy-related questions, requests or complaints, contact:</p>
+            <div class="text-xs text-gray-800 font-medium space-y-1">
+                <p><strong>The Home First</strong> (Operated by <strong>AINexTech LLP</strong>)</p>
+                <p><strong>Registered Address:</strong> Shop 10, Bhoomi Acres, Phase 2, Waghbil Road, Hiranandani Estate, Thane West, Thane - 400615</p>
+                <p><strong>Contact Email:</strong> <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary underline">connectthehomefirst@gmail.com</a></p>
+                <p><strong>Contact Number:</strong> <a href="tel:+917738230656" class="text-brand-primary underline">+91-77382 30656</a></p>
+                <p><strong>Grievance Officer:</strong> [Insert Name]</p>
+                <p><strong>Grievance Email:</strong> <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary underline">connectthehomefirst@gmail.com</a></p>
+                <p><strong>Website:</strong> <a href="https://www.thehomefirst.com/" class="text-brand-primary underline" target="_blank">www.thehomefirst.com</a></p>
+            </div>
+        </section>
     </div>
 </div>
 {% endblock %}

@@ -19,7 +19,7 @@ class CentralNotificationService:
         email = (
             getattr(settings, 'EMAIL_HOST_USER', '').strip() or
             getattr(settings, 'DEFAULT_FROM_EMAIL', '').strip() or
-            'support@thehomefirst.com'
+            'connectthehomefirst@gmail.com'
         )
         if '<' in email and '>' in email:
             email = email.split('<')[1].split('>')[0].strip()
@@ -105,7 +105,7 @@ class CentralNotificationService:
         else:
             text_content = strip_tags(html_content)
 
-        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'The Home First <noreply@thehomefirst.com>')
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'The Home First <connectthehomefirst@gmail.com>')
 
         log_obj, _ = CompanyNotificationLog.objects.get_or_create(
             lead_ref=lead_ref,

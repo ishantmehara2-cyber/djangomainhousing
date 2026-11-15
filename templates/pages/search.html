@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
 {% load property_tags %}
 
-print("DEBUG TEMPLATE LOADED")
-
-{% block title %}{{ page_title|default:"Advanced Property Search" }} | The Home First{% endblock %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}{{ page_title|default:"Advanced Property Search" }} | The Home First{% endif %}{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

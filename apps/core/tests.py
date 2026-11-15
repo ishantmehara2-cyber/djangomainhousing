@@ -51,7 +51,7 @@ class Phase15CoreAndSupportTestCase(TestCase):
 
     def test_legal_pages_return_200(self):
         """Test that all legal and business pages load successfully."""
-        urls = ['/about/', '/contact/', '/terms/', '/privacy/', '/cookie-policy/', '/listing-guidelines/', '/refund-policy/', '/payment-terms/', '/disclaimer/', '/grievance/']
+        urls = ['/about/', '/contact/', '/terms/', '/privacy/', '/cookie-policy/', '/listing-guidelines/', '/refund-policy/', '/return-policy/', '/cancellation-policy/', '/payment-terms/', '/disclaimer/', '/grievance/']
         for url in urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200, f"Failed on URL: {url}")

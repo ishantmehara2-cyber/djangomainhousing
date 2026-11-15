@@ -6,7 +6,7 @@ from django.utils import timezone
 import datetime
 from apps.locations.models import City, Locality
 from apps.properties.models import Property, PropertyType, ListingPurposeChoices
-from apps.core.models import FAQCategory, FAQItem, SupportTicket, TicketMessage, TicketCategoryChoices, TicketStatusChoices, TicketPriorityChoices
+from apps.core.models import FAQCategory, FAQItem, SupportTicket, TicketMessage, TicketCategoryChoices, TicketStatusChoices, TicketPriorityChoices, SEOPage
 
 def home_view(request):
     """
@@ -70,24 +70,39 @@ def robots_txt_view(request):
 
 def sitemap_view(request):
     """
-    Dynamic XML sitemap listing public properties and static pages.
+    Dynamic XML sitemap listing public properties and database-backed SEO pages.
     """
-    properties = Property.objects.filter(listing_state='ACTIVE')[:1000]
+    host = request.get_host() if hasattr(request, 'get_host') else 'www.thehomefirst.com'
+    scheme = 'https' if (hasattr(request, 'is_secure') and request.is_secure()) or (hasattr(request, 'META') and request.META.get('HTTP_X_FORWARDED_PROTO') == 'https') else 'http'
+    base_url = f"{scheme}://{host}"
+
     xml_lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-        '  <url><loc>https://housingclone.local/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>',
-        '  <url><loc>https://housingclone.local/properties/buy/</loc><changefreq>daily</changefreq><priority>0.9</priority></url>',
-        '  <url><loc>https://housingclone.local/properties/rent/</loc><changefreq>daily</changefreq><priority>0.9</priority></url>',
-        '  <url><loc>https://housingclone.local/help/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>',
-        '  <url><loc>https://housingclone.local/support/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>',
-        '  <url><loc>https://housingclone.local/about/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>',
-        '  <url><loc>https://housingclone.local/contact/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>',
     ]
+
+    added_urls = set()
+
+    # Dynamic SEOPage Database Entries
+    seo_pages = SEOPage.objects.filter(is_in_sitemap=True).order_by('-sitemap_priority')
+    for page in seo_pages:
+        loc = page.canonical_url.strip() if page.canonical_url else f"{base_url}{page.page_url}"
+        if loc not in added_urls:
+            added_urls.add(loc)
+            priority = f"{page.sitemap_priority:.1f}"
+            xml_lines.append(f'  <url><loc>{loc}</loc><changefreq>weekly</changefreq><priority>{priority}</priority></url>')
+
+    # Active Property Listings
+    properties = Property.objects.public().select_related('city').order_by('-created_at')[:1000]
     for p in properties:
-        loc = request.build_absolute_uri(f'/property/{p.slug}/')
-        xml_lines.append(f'  <url><loc>{loc}</loc><lastmod>{p.updated_at.strftime("%Y-%m-%d")}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>')
+        loc = f"{base_url}/property/{p.slug}/"
+        if loc not in added_urls:
+            added_urls.add(loc)
+            lastmod = p.updated_at.strftime("%Y-%m-%d")
+            xml_lines.append(f'  <url><loc>{loc}</loc><lastmod>{lastmod}</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>')
+
     xml_lines.append('</urlset>')
+    return HttpResponse("\n".join(xml_lines), content_type="application/xml")
     return HttpResponse("\n".join(xml_lines), content_type="application/xml")
 
 # Legal & Business Pages
@@ -117,6 +132,12 @@ def listing_guidelines_view(request):
 
 def refund_policy_view(request):
     return render(request, 'pages/legal/refund_policy.html')
+
+def return_policy_view(request):
+    return render(request, 'pages/legal/return_policy.html')
+
+def cancellation_policy_view(request):
+    return render(request, 'pages/legal/cancellation_policy.html')
 
 def payment_terms_view(request):
     return render(request, 'pages/legal/payment_terms.html')

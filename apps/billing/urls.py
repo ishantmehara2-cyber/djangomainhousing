@@ -20,4 +20,5 @@ urlpatterns = [
     path('billing/verify-promotion/', verify_promotion_view, name='verify-promotion'),
     path('dashboard/billing/', user_billing_dashboard_view, name='billing-dashboard'),
     path('admin-panel/revenue/', admin_revenue_dashboard_view, name='admin-revenue'),
+    path('admin/revenue/', admin_revenue_dashboard_view),
 ]

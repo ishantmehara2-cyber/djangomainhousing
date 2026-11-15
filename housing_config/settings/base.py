@@ -7,7 +7,24 @@ dotenv.load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-housing-clone-secret-key')
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
-ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')]
+
+raw_hosts = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0,.trycloudflare.com,*')
+ALLOWED_HOSTS = [h.strip() for h in raw_hosts.split(',') if h.strip()]
+if '.trycloudflare.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.trycloudflare.com')
+if '*' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('*')
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in os.getenv(
+        'CSRF_TRUSTED_ORIGINS',
+        'http://localhost:8000,http://127.0.0.1:8000,https://*.trycloudflare.com,http://*.trycloudflare.com'
+    ).split(',') if origin.strip()
+]
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -62,6 +79,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.core.context_processors.global_settings',
+                'apps.core.context_processors.seo_context',
             ],
         },
     },
@@ -154,7 +172,7 @@ if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or os.getenv('DEFAULT_FROM_EMAIL', 'The Home First <noreply@thehomefirst.com>')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or os.getenv('DEFAULT_FROM_EMAIL', 'The Home First <connectthehomefirst@gmail.com>')
 
 # Global Upload Restrictions (MODULE 7: 5 MB per file max)
 MAX_FILE_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MB per individual file

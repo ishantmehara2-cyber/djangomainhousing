@@ -17,7 +17,10 @@ from apps.services.models import (
     LoanInquiryNote,
     LoanInquiryStatusHistory,
     LoanInquiryStatusChoices,
-    EmploymentTypeChoices
+    EmploymentTypeChoices,
+    ServiceProvider,
+    ProviderApprovalStatusChoices,
+    ServiceCategory
 )
 
 
@@ -75,6 +78,67 @@ def api_public_bank_detail(request, pk):
     """
     bank = get_object_or_404(BankPartner, pk=pk, is_active=True)
     return JsonResponse({'success': True, 'bank': serialize_bank(bank)})
+
+
+@require_GET
+def api_public_providers_list(request):
+    """
+    GET /api/providers/
+    Public API returning registered Service Providers that satisfy ALL 3 visibility conditions:
+    - approval_status = 'APPROVED'
+    - is_active = True
+    - is_published = True
+    """
+    query = request.GET.get('q', '').strip()
+    category_slug = request.GET.get('category', '').strip()
+    is_featured = request.GET.get('featured')
+
+    providers = ServiceProvider.objects.filter(
+        approval_status=ProviderApprovalStatusChoices.APPROVED,
+        is_active=True,
+        is_published=True
+    ).select_related('city', 'state', 'category').prefetch_related('categories').order_by('-created_at')
+
+    if is_featured == 'true' or is_featured == '1':
+        providers = providers.filter(is_featured=True)
+
+    if category_slug:
+        providers = providers.filter(
+            models.Q(category__slug=category_slug) | models.Q(categories__slug=category_slug)
+        ).distinct()
+
+    if query:
+        providers = providers.filter(
+            models.Q(business_name__icontains=query) |
+            models.Q(full_name__icontains=query) |
+            models.Q(city__name__icontains=query) |
+            models.Q(category__name__icontains=query)
+        ).distinct()
+
+    data = []
+    for p in providers:
+        data.append({
+            'id': p.id,
+            'provider_id': p.provider_id,
+            'business_name': p.business_name,
+            'business_type': p.get_business_type_display(),
+            'full_name': p.full_name,
+            'business_description': p.business_description or '',
+            'location_display': p.location_display,
+            'city': p.city.name if p.city else None,
+            'state': p.state.name if p.state else None,
+            'pincode': p.pincode or '',
+            'services_offered_display': p.services_offered_display,
+            'years_of_experience': p.years_of_experience,
+            'working_days': p.working_days,
+            'working_hours': p.working_hours,
+            'short_profile': p.short_profile or '',
+            'website': p.website or '',
+            'is_featured': p.is_featured,
+            'created_at': p.created_at.isoformat()
+        })
+
+    return JsonResponse({'success': True, 'count': len(data), 'providers': data})
 
 
 # ==============================================================================

@@ -1,19 +1,146 @@
 {% extends 'base.html' %}
-{% block title %}Terms and Conditions | The Home First{% endblock %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}Terms and Conditions | The Home First{% endif %}{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-12 space-y-8">
+<div class="max-w-4xl mx-auto px-4 py-12 space-y-10">
+    <!-- Header -->
     <div class="border-b border-gray-200 pb-6">
-        <h1 class="text-3xl font-black text-gray-900">Terms and Conditions</h1>
-        <p class="text-sm text-gray-500 mt-2">Last updated: 2026</p>
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Terms & Conditions</h1>
+        <p class="text-xs text-gray-500 mt-2">The Home First ("THF") | Website: <a href="https://www.thehomefirst.com/" class="underline hover:text-brand-primary" target="_blank" rel="noopener">https://www.thehomefirst.com/</a></p>
     </div>
-    <div class="prose max-w-none text-gray-700 text-sm space-y-4 leading-relaxed">
-        <p>Welcome to The Home First (THF). By accessing or using our website and services, you agree to comply with and be bound by these Terms and Conditions.</p>
-        <h3 class="text-lg font-bold text-gray-900 mt-6">1. User Accounts</h3>
-        <p>You must provide accurate information when registering an account. You are responsible for maintaining the confidentiality of your credentials.</p>
-        <h3 class="text-lg font-bold text-gray-900 mt-6">2. Property Listings</h3>
-        <p>Property owners and partners must ensure listings are genuine, accurate, and comply with all applicable local real estate laws.</p>
-        <h3 class="text-lg font-bold text-gray-900 mt-6">3. Limitation of Liability</h3>
-        <p>The Home First acts as an online marketplace. We do not guarantee transactions between buyers, tenants, and owners.</p>
+
+    <div class="prose max-w-none text-gray-700 text-sm leading-relaxed space-y-8">
+        <!-- 1. Acceptance of Terms -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">1. Acceptance of Terms</h2>
+            <p>Welcome to The Home First, a real estate platform operated by <strong>AINexTech LLP</strong>.</p>
+            <p>These Terms and Conditions ("Terms") govern your access to and use of <a href="https://www.thehomefirst.com/" class="text-brand-primary hover:underline" target="_blank">https://www.thehomefirst.com/</a>, including property listings, enquiry forms, Real Estate Partner services, home loan enquiry facilities and rental agreement-related services.</p>
+            <p>By accessing, browsing, registering on or using the website, you agree to these Terms. If you do not agree with these Terms, please discontinue using the website.</p>
+        </section>
+
+        <!-- 2. About the Platform -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">2. About the Platform</h2>
+            <p>The Home First is an online platform intended to facilitate property discovery, property-related enquiries and access to associated services.</p>
+            <p>The platform allows users to browse residential and commercial properties, explore purchase or rental listings, submit property enquiries, register as Real Estate Partners, submit property listings (subject to approval), submit home loan enquiries, explore rental agreement services, and contact the platform for assistance.</p>
+            <p class="text-xs font-medium text-gray-800 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                Unless expressly agreed otherwise in writing, The Home First acts as a platform facilitating discovery and communication. It is not automatically the owner, seller, landlord, tenant, developer, bank, lender or legal adviser for every property or service listed.
+            </p>
+        </section>
+
+        <!-- 3. Eligibility -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">3. Eligibility</h2>
+            <p>By using the website, you confirm that you are legally capable of entering into a binding agreement, the information you submit is accurate and complete, you will use the website only for lawful purposes, and you will not misuse the platform or attempt to interfere with its operation.</p>
+        </section>
+
+        <!-- 4. User Accounts -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">4. User Accounts</h2>
+            <p>Certain website features may require account registration. Users are responsible for providing accurate registration info, maintaining confidentiality of credentials, keeping info updated, not sharing access, and informing us of any suspected unauthorized access.</p>
+        </section>
+
+        <!-- 5. Customer Accounts -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">5. Customer Accounts</h2>
+            <p>Customers may use the platform to explore properties, submit enquiries and access available services. Creating a customer account does not automatically provide permission to publish property listings. Property listing permissions are subject to the separate Real Estate Partner registration and approval process.</p>
+        </section>
+
+        <!-- 6. Real Estate Partner Registration and Verification -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">6. Real Estate Partner Registration and Verification</h2>
+            <p>Individuals or businesses wishing to publish property listings may register as Real Estate Partners.</p>
+            <p class="text-xs text-gray-600">Accepted verification documents may include Gumasta / Shop and Establishment registration, MSME, Udyam or GST documentation. Submitting documents does not guarantee approval.</p>
+            <p class="text-xs text-gray-600">Only approved and active Real Estate Partners may publish property listings, subject to platform rules.</p>
+        </section>
+
+        <!-- 7. Property Listing Responsibilities -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">7. Property Listing Responsibilities</h2>
+            <p>Real Estate Partners and listing users are responsible for ensuring property information is accurate, complete and not misleading. By submitting a listing, the user confirms they own the property or have lawful authority to advertise it.</p>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-xs text-gray-700 space-y-1">
+                <p><strong>Prohibited Listing Conduct:</strong> Users must not publish fabricated listings, use photographs without rights, misrepresent ownership, advertise unavailable properties as available, publish misleading prices, or upload unlawful content.</p>
+            </div>
+        </section>
+
+        <!-- 8. Property Enquiries and Transactions -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">8. Property Enquiries and Transactions</h2>
+            <p>Users should independently verify ownership and title documents, identity of representative, physical condition, outstanding dues, legal approvals, sale/rental terms, and applicable taxes before entering into a transaction.</p>
+        </section>
+
+        <!-- 9. Home Loan Enquiries -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">9. Home Loan Enquiries</h2>
+            <p>The Home First provides information about banking partners and facilities to submit home loan enquiries. Submitting an enquiry does not constitute a formal loan application to a bank, guarantee loan approval, or create a lending relationship between the user and The Home First.</p>
+        </section>
+
+        <!-- 10. Rental Agreement Services -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">10. Rental Agreement Services</h2>
+            <p>The Home First may facilitate enquiries for rental agreement-related services. The exact service, applicable charges, required documents, processing time and scope will be communicated before confirmation.</p>
+        </section>
+
+        <!-- 11. Fees and Payments -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">11. Fees and Payments</h2>
+            <p>Any applicable platform, listing, documentation or service charges will be communicated before the relevant paid service is confirmed. Submitting a free enquiry does not itself create an obligation to pay.</p>
+        </section>
+
+        <!-- 12. Intellectual Property -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">12. Intellectual Property</h2>
+            <p>The website's branding, logos, text, graphics, software, layout and original materials are owned by or licensed to The Home First. Users may not reproduce, distribute or commercially exploit these materials without prior written permission.</p>
+        </section>
+
+        <!-- 13. Prohibited Activities -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">13. Prohibited Activities</h2>
+            <p>Users must not use the website for unlawful activities, submit false information, attempt unauthorized access, upload malicious code, scrape data without permission, or impersonate others.</p>
+        </section>
+
+        <!-- 14 to 18 -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">14. Website Availability</h2>
+            <p>Uninterrupted access cannot be guaranteed. The website may occasionally be unavailable due to maintenance, updates, or technical issues.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">15. Limitation of Responsibility</h2>
+            <p>To the extent permitted by applicable law, The Home First is not responsible for independent acts of property owners, incorrect information submitted by users, disputes between parties, or bank decisions.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">16. Suspension and Termination</h2>
+            <p>The Home First may restrict, suspend or terminate access where terms are violated, false information is identified, or as required by law.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">17. Privacy</h2>
+            <p>Use of the website is also governed by our Privacy Policy.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">18. Changes to These Terms</h2>
+            <p>We may update these Terms from time to time. The revised version will be published on this page.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">19. Governing Law and Jurisdiction</h2>
+            <p>These Terms shall be governed by the laws of India. Courts having competent jurisdiction shall have jurisdiction over disputes arising from these Terms.</p>
+        </section>
+
+        <!-- 20. Contact Information -->
+        <section class="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-2">
+            <h2 class="text-xl font-bold text-gray-900">20. Contact Information</h2>
+            <div class="text-xs text-gray-800 font-medium space-y-1">
+                <p><strong>The Home First</strong> (Operated by <strong>AINexTech LLP</strong>)</p>
+                <p><strong>Registered/Business Address:</strong> Shop 10, Bhoomi Acres, Phase 2, Waghbil Road, Hiranandani Estate, Thane West, Thane - 400615</p>
+                <p><strong>Contact Email:</strong> <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary underline">connectthehomefirst@gmail.com</a></p>
+                <p><strong>Contact Phone:</strong> <a href="tel:+917738230656" class="text-brand-primary underline">+91-77382 30656</a></p>
+                <p><strong>Website:</strong> <a href="https://www.thehomefirst.com/" class="text-brand-primary underline" target="_blank">www.thehomefirst.com</a></p>
+            </div>
+        </section>
     </div>
 </div>
 {% endblock %}

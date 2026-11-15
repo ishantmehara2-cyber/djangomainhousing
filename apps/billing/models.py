@@ -90,3 +90,42 @@ class PropertyPromotion(models.Model):
 
     def __str__(self):
         return f"{self.property.title} ({self.get_promotion_type_display()})"
+
+
+class ProductCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    description = models.TextField(null=True, blank=True)
+    display_order = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'product_categories'
+        ordering = ['display_order', 'name']
+        verbose_name = 'Product Category'
+        verbose_name_plural = 'Product Categories'
+
+    def __str__(self):
+        return self.name
+
+
+class Product(models.Model):
+    category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
+    image_url = models.CharField(max_length=500, null=True, blank=True, help_text="Optional external image URL")
+    is_published = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'products'
+        ordering = ['-created_at']
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
+
+    def __str__(self):
+        return f"{self.name} (₹{self.price})"

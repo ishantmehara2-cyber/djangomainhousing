@@ -7,8 +7,66 @@ from apps.services.models import (
     BankCategoryChoices,
     ProcessingFeeTypeChoices,
     LoanInquiryLead,
-    EmploymentTypeChoices
+    EmploymentTypeChoices,
+    ServiceEnquiry
 )
+from apps.locations.models import State, City, Locality
+
+
+class ServiceEnquiryForm(forms.ModelForm):
+    class Meta:
+        model = ServiceEnquiry
+        fields = [
+            'full_name', 'mobile_number', 'email', 'company_name',
+            'state', 'city', 'locality', 'locality_name',
+            'requirement_description', 'preferred_contact_method', 'preferred_contact_time'
+        ]
+        widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary', 'placeholder': 'Full Name *'}),
+            'mobile_number': forms.TextInput(attrs={'class': 'w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary', 'placeholder': 'Mobile Number *'}),
+            'email': forms.EmailInput(attrs={'class': 'w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary', 'placeholder': 'Email Address *'}),
+            'company_name': forms.TextInput(attrs={'class': 'w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary', 'placeholder': 'Company / Business Name (Optional)'}),
+            'state': forms.Select(attrs={'class': 'w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary'}),
+            'city': forms.Select(attrs={'class': 'w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary'}),
+            'locality': forms.Select(attrs={'class': 'w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary'}),
+            'locality_name': forms.TextInput(attrs={'class': 'w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary', 'placeholder': 'Locality / Area Name'}),
+            'requirement_description': forms.Textarea(attrs={'class': 'w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary', 'rows': 3, 'placeholder': 'Describe your specific requirement, timeline, or location preferences... *'}),
+            'preferred_contact_method': forms.Select(attrs={'class': 'w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary'}),
+            'preferred_contact_time': forms.Select(attrs={'class': 'w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold outline-none focus:border-brand-primary'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['full_name'].required = True
+        self.fields['mobile_number'].required = True
+        self.fields['email'].required = True
+        self.fields['requirement_description'].required = True
+        self.fields['company_name'].required = False
+        self.fields['state'].required = False
+        self.fields['city'].required = False
+        self.fields['locality'].required = False
+        self.fields['locality_name'].required = False
+
+        self.fields['state'].queryset = State.objects.filter(is_active=True).order_by('name')
+        self.fields['city'].queryset = City.objects.filter(is_active=True).order_by('name')
+        self.fields['locality'].queryset = Locality.objects.filter(is_active=True).order_by('name')
+
+    def clean_full_name(self):
+        val = self.cleaned_data.get('full_name', '').strip()
+        if len(val) < 2:
+            raise forms.ValidationError("Full name must be at least 2 characters.")
+        return val
+
+    def clean_mobile_number(self):
+        val = self.cleaned_data.get('mobile_number', '').strip()
+        digits = ''.join([c for c in val if c.isdigit()])
+        if len(digits) < 10:
+            raise forms.ValidationError("Please enter a valid mobile number with at least 10 digits.")
+        return val
+
+    def clean_email(self):
+        return self.cleaned_data.get('email', '').strip().lower()
+
 
 class LoanInquiryLeadForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

@@ -4,6 +4,7 @@ DEBUG = True
 
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+SECURE_SSL_REDIRECT = False
 
 if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

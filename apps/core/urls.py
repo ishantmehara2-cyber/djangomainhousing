@@ -1,7 +1,8 @@
 from django.urls import path
 from apps.core.views import (
     about_view, contact_view, terms_view, privacy_view, cookie_policy_view,
-    listing_guidelines_view, refund_policy_view, payment_terms_view, disclaimer_view, grievance_view,
+    listing_guidelines_view, refund_policy_view, return_policy_view, cancellation_policy_view,
+    payment_terms_view, disclaimer_view, grievance_view,
     help_centre_view, support_ticket_list_view, create_support_ticket_view, support_ticket_detail_view,
     health_check_view, robots_txt_view, sitemap_view, maintenance_view
 )
@@ -18,6 +19,8 @@ urlpatterns = [
     path('cookie-policy/', cookie_policy_view, name='cookie-policy'),
     path('listing-guidelines/', listing_guidelines_view, name='listing-guidelines'),
     path('refund-policy/', refund_policy_view, name='refund-policy'),
+    path('return-policy/', return_policy_view, name='return-policy'),
+    path('cancellation-policy/', cancellation_policy_view, name='cancellation-policy'),
     path('payment-terms/', payment_terms_view, name='payment-terms'),
     path('disclaimer/', disclaimer_view, name='disclaimer'),
     path('grievance/', grievance_view, name='grievance'),

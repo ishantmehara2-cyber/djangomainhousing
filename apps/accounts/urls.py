@@ -71,12 +71,17 @@ urlpatterns = [
 
     # Admin Verification Portal Routes
     path('admin-panel/partners/', admin_partner_applications_view, name='admin_partner_applications'),
+    path('admin/partners/', admin_partner_applications_view),
     path('admin-panel/partners/<int:user_id>/', admin_partner_detail_view, name='admin_partner_detail'),
+    path('admin/partners/<int:user_id>/', admin_partner_detail_view),
     path('admin-panel/partners/documents/<int:doc_id>/download/', admin_download_partner_document_view, name='admin_download_partner_document'),
+    path('admin/partners/documents/<int:doc_id>/download/', admin_download_partner_document_view),
 
     # Admin Documents Pending Leads Routes (MODULE 3)
     path('admin-panel/documents-pending-leads/', admin_documents_pending_leads_view, name='admin_documents_pending_leads'),
+    path('admin/documents-pending-leads/', admin_documents_pending_leads_view),
     path('admin-panel/documents-pending-leads/<int:lead_id>/', admin_documents_pending_detail_view, name='admin_documents_pending_detail'),
+    path('admin/documents-pending-leads/<int:lead_id>/', admin_documents_pending_detail_view),
 
     # Lead management
     path('leads/<int:lead_id>/update-status/', update_lead_status_view, name='update_lead_status'),

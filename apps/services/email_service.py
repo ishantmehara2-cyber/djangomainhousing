@@ -69,7 +69,7 @@ def send_owner_enquiry_notification_email(owner_name, owner_email, buyer_name, b
     return send_housing_email(subject, 'emails/owner_property_enquiry_notification.html', context, owner_email)
 
 def send_company_rental_agreement_notification_email(agreement_req):
-    company_email = getattr(settings, 'EMAIL_HOST_USER', '').strip() or getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@thehomefirst.com').strip()
+    company_email = getattr(settings, 'EMAIL_HOST_USER', '').strip() or getattr(settings, 'DEFAULT_FROM_EMAIL', 'connectthehomefirst@gmail.com').strip()
     subject = f"New Rental Agreement Request #{agreement_req.reference_number} | The Home First"
     context = {
         'agreement': agreement_req,

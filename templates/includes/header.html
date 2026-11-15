@@ -26,7 +26,7 @@
             <a href="{% url 'services:bank-loans' %}" class="nav-link {% if request.resolver_match.url_name == 'bank-loans' %}nav-link-active{% endif %}">Bank Loans</a>
             <a href="{% url 'services:rental-agreement' %}" class="nav-link {% if request.resolver_match.url_name == 'rental-agreement' %}nav-link-active{% endif %}">Rental Agreement</a>
             <a href="{% url 'engagements:smart-discover' %}" class="nav-link {% if request.resolver_match.url_name == 'smart-discover' %}nav-link-active{% endif %}">Smart Discover</a>
-            <a href="/brokers/" class="nav-link {% if '/brokers/' in request.path %}nav-link-active{% endif %}">Partners & Agents</a>
+            <a href="{% url 'services:partner-marketplace' %}" class="nav-link {% if 'partner-marketplace' in request.path or '/brokers/' in request.path %}nav-link-active{% endif %}">Partner Marketplace</a>
         </nav>
 
         <!-- Right Side Actions & User Profile -->
@@ -59,6 +59,7 @@
                             <p class="user-dropdown-name">{{ user.get_full_name|default:user.username }}</p>
                             <p class="user-dropdown-role">{{ user.get_role_display }}</p>
                         </div>
+                        <a href="/brokers/" class="user-dropdown-item font-semibold">🤝 Partner Marketplace</a>
                         <a href="{% url 'engagements:smart-discover' %}" class="user-dropdown-item">Smart Discover Hub</a>
                         <a href="{% url 'engagements:preferences' %}" class="user-dropdown-item">Property Preferences</a>
                         <a href="{% url 'engagements:recently-viewed' %}" class="user-dropdown-item">Recently Viewed</a>
@@ -67,6 +68,11 @@
                         <a href="{% url 'properties:my-properties' %}" class="user-dropdown-item">My Properties Catalog</a>
                         <a href="{% url 'engagements:owner-enquiries' %}" class="user-dropdown-item">Owner CRM Leads</a>
                         <a href="{% url 'billing:billing-dashboard' %}" class="user-dropdown-item">Billing & Subscriptions</a>
+                        {% if user.is_admin_role or user.is_staff or user.is_superuser %}
+                        <hr class="border-gray-100 my-1">
+                        <a href="{% url 'moderation:dashboard' %}" class="user-dropdown-item text-brand-primary font-bold">🛡️ Platform Admin Panel</a>
+                        <a href="/admin/" target="_blank" rel="noopener" class="user-dropdown-item font-semibold text-gray-700">⚙️ Django System Admin</a>
+                        {% endif %}
                         <hr class="border-gray-100 my-1">
                         <form method="POST" action="{% url 'accounts:logout' %}">
                             {% csrf_token %}
@@ -115,8 +121,16 @@
             <a href="{% url 'services:bank-loans' %}" class="block py-2 text-sm font-semibold text-gray-800 hover:text-brand-primary">Bank Loans</a>
             <a href="{% url 'services:rental-agreement' %}" class="block py-2 text-sm font-semibold text-gray-800 hover:text-brand-primary">Rental Agreement</a>
             <a href="{% url 'properties:post-property' %}" class="block py-2 text-sm font-bold text-brand-primary">+ Post Property (Free)</a>
-            <a href="/brokers/" class="block py-2 text-sm font-semibold text-gray-800 hover:text-brand-primary">Verified Real Estate Partners</a>
+            <a href="/brokers/" class="block py-2 text-sm font-semibold text-gray-800 hover:text-brand-primary">Partner Marketplace</a>
         </div>
+        {% if user.is_authenticated and user.is_admin_role or user.is_authenticated and user.is_staff or user.is_authenticated and user.is_superuser %}
+        <hr class="border-gray-200">
+        <div class="space-y-1">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Admin Management</p>
+            <a href="{% url 'moderation:dashboard' %}" class="block py-2 text-sm font-bold text-brand-primary">🛡️ Platform Admin Panel</a>
+            <a href="/admin/" target="_blank" rel="noopener" class="block py-2 text-sm font-semibold text-gray-800">⚙️ Django System Admin</a>
+        </div>
+        {% endif %}
         {% if not user.is_authenticated %}
         <hr class="border-gray-200">
         <div class="space-y-2 pt-2">

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Property Listing Guidelines | The Home First{% endblock %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}Property Listing Guidelines | The Home First{% endif %}{% endblock %}
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 py-12 space-y-8">
     <div class="border-b border-gray-200 pb-6"><h1 class="text-3xl font-black text-gray-900">Property Listing Guidelines</h1></div>

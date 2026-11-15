@@ -20,8 +20,6 @@ def render_billing_template(request, template_name, context):
     context['user'] = request.user
     template = get_template(template_name)
     return HttpResponse(template.render(context, request))
-    
-   
 
 def pricing_view(request):
     """Public pricing page displaying available plans, benefits, and user's current subscription."""

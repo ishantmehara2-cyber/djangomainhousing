@@ -1,5 +1,7 @@
+import json
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 class CMSContent(models.Model):
     slug = models.SlugField(max_length=100, unique=True)
@@ -157,3 +159,74 @@ class CompanyNotificationLog(models.Model):
 
     def __str__(self):
         return f"[{self.status}] {self.notification_type} - {self.lead_ref}"
+
+
+class SEOPage(models.Model):
+    ROBOTS_INDEX_CHOICES = [
+        ('index', 'Index'),
+        ('noindex', 'Noindex'),
+    ]
+    ROBOTS_FOLLOW_CHOICES = [
+        ('follow', 'Follow'),
+        ('nofollow', 'Nofollow'),
+    ]
+    TWITTER_CARD_CHOICES = [
+        ('summary_large_image', 'Summary Card with Large Image'),
+        ('summary', 'Summary Card'),
+    ]
+
+    page_name = models.CharField(max_length=255, help_text="Human-readable name of the page (e.g., Homepage, Buy Properties)")
+    page_url = models.CharField(max_length=255, unique=True, db_index=True, help_text="Path of the page starting with '/' (e.g. '/' or '/properties/buy/')")
+    url_slug = models.SlugField(max_length=255, blank=True, null=True, help_text="Optional unique slug for routing identification")
+
+    seo_title = models.CharField(max_length=255, help_text="SEO Title tag (50-60 characters recommended)")
+    meta_description = models.TextField(help_text="SEO Meta Description (150-160 characters recommended)")
+    meta_keywords = models.CharField(max_length=255, blank=True, null=True, help_text="Optional legacy meta keywords comma separated")
+
+    canonical_url = models.CharField(max_length=500, blank=True, null=True, help_text="Optional custom canonical URL. Defaults to page absolute URL if blank.")
+    robots_index = models.CharField(max_length=20, choices=ROBOTS_INDEX_CHOICES, default='index')
+    robots_follow = models.CharField(max_length=20, choices=ROBOTS_FOLLOW_CHOICES, default='follow')
+
+    og_title = models.CharField(max_length=255, blank=True, null=True, help_text="Open Graph Title. Defaults to SEO Title if blank.")
+    og_description = models.TextField(blank=True, null=True, help_text="Open Graph Description. Defaults to Meta Description if blank.")
+    og_image_file = models.ImageField(upload_to='seo/og/', blank=True, null=True, help_text="Upload Open Graph social share image")
+    og_image_url = models.CharField(max_length=500, blank=True, null=True, help_text="Or specify absolute URL to Open Graph image")
+    og_type = models.CharField(max_length=50, default='website')
+
+    twitter_card_type = models.CharField(max_length=50, choices=TWITTER_CARD_CHOICES, default='summary_large_image')
+    twitter_title = models.CharField(max_length=255, blank=True, null=True, help_text="Twitter Title. Defaults to OG Title if blank.")
+    twitter_description = models.TextField(blank=True, null=True, help_text="Twitter Description. Defaults to OG Description if blank.")
+    twitter_image_file = models.ImageField(upload_to='seo/twitter/', blank=True, null=True, help_text="Upload Twitter share image")
+    twitter_image_url = models.CharField(max_length=500, blank=True, null=True, help_text="Or specify absolute URL to Twitter image")
+
+    structured_data_json = models.TextField(blank=True, null=True, help_text="Valid JSON-LD schema markup script content")
+    is_in_sitemap = models.BooleanField(default=True, help_text="Include this page in XML sitemap")
+    sitemap_priority = models.DecimalField(max_digits=2, decimal_places=1, default=0.8, help_text="Sitemap priority between 0.0 and 1.0")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'seo_pages'
+        verbose_name = 'SEO Page'
+        verbose_name_plural = 'SEO Pages'
+        ordering = ['page_name']
+
+    def __str__(self):
+        return f"{self.page_name} ({self.page_url})"
+
+    def clean(self):
+        super().clean()
+        if self.page_url:
+            self.page_url = self.page_url.strip()
+            if not self.page_url.startswith('/'):
+                self.page_url = '/' + self.page_url
+        if self.structured_data_json:
+            try:
+                json.loads(self.structured_data_json)
+            except Exception as e:
+                raise ValidationError({'structured_data_json': f"Invalid JSON-LD format: {str(e)}"})
+        if self.sitemap_priority is not None:
+            if self.sitemap_priority < 0.0 or self.sitemap_priority > 1.0:
+                raise ValidationError({'sitemap_priority': "Sitemap priority must be between 0.0 and 1.0"})
+

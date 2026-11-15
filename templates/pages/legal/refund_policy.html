@@ -1,10 +1,108 @@
 {% extends 'base.html' %}
-{% block title %}Refund & Cancellation Policy | The Home First{% endblock %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}Refund Policy | The Home First{% endif %}{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-12 space-y-8">
-    <div class="border-b border-gray-200 pb-6"><h1 class="text-3xl font-black text-gray-900">Refund and Cancellation Policy</h1></div>
-    <div class="prose max-w-none text-gray-700 text-sm space-y-4 leading-relaxed">
-        <p>Subscription packages and property promotions are non-refundable once activated, except in cases of billing error or duplicate transactions.</p>
+<div class="max-w-4xl mx-auto px-4 py-12 space-y-10">
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-6">
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Refund Policy</h1>
+        <p class="text-xs text-gray-500 mt-2">The Home First ("THF") | Operated by <strong>AINexTech LLP</strong> | Contact: <a href="mailto:connectthehomefirst@gmail.com" class="underline hover:text-brand-primary">connectthehomefirst@gmail.com</a> | Phone: <a href="tel:+917738230656" class="underline hover:text-brand-primary">+91-77382 30656</a></p>
+    </div>
+
+    <div class="prose max-w-none text-gray-700 text-sm leading-relaxed space-y-8">
+        <!-- 1. Introduction -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">1. Introduction</h2>
+            <p>This Refund Policy explains the conditions under which refunds may be considered for eligible paid services offered through The Home First.</p>
+            <p>The Home First primarily provides property discovery and enquiry facilities and may facilitate additional services such as rental agreement-related assistance, documentation assistance or other services introduced on the platform.</p>
+            <p>Refund eligibility depends on the specific service purchased, the work already performed, the terms communicated before payment and applicable law.</p>
+        </section>
+
+        <!-- 2. Services Covered -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">2. Services Covered</h2>
+            <p>This policy may apply to paid services offered directly by The Home First, including:</p>
+            <ul class="list-disc pl-5 text-xs text-gray-700 space-y-1">
+                <li>Rental agreement-related services.</li>
+                <li>Paid documentation assistance, if offered.</li>
+                <li>Paid property listing or promotional services, if introduced.</li>
+                <li>Other paid services expressly offered by The Home First.</li>
+            </ul>
+            <p class="text-xs text-gray-500 italic">Submitting a free property enquiry or home loan enquiry does not itself create a refund entitlement where no payment has been collected.</p>
+        </section>
+
+        <!-- 3. Refund Eligibility -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">3. Refund Eligibility</h2>
+            <p>A refund request may be considered in circumstances such as:</p>
+            <ul class="list-disc pl-5 text-xs text-gray-700 space-y-1">
+                <li>Duplicate payment for the same service.</li>
+                <li>Payment deducted but the service order was not created.</li>
+                <li>Payment collected for a service that The Home First is unable to provide.</li>
+                <li>Cancellation accepted under the applicable service terms.</li>
+                <li>An incorrect amount charged due to a verified payment or billing error.</li>
+                <li>Other circumstances where a refund is required by applicable law.</li>
+            </ul>
+        </section>
+
+        <!-- 4. Non-Eligibility or Deductions -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">4. Non-Eligibility or Deductions</h2>
+            <p>A refund may not be available, or may be subject to reasonable deductions where legally permissible, if:</p>
+            <ul class="list-disc pl-5 text-xs text-gray-700 space-y-1">
+                <li>The service has already been completed.</li>
+                <li>Work has already commenced and disclosed terms permit applicable charges.</li>
+                <li>Incorrect or incomplete information supplied by the customer prevents completion.</li>
+                <li>The customer fails to provide required documents or information.</li>
+                <li>The customer changes requirements after work has commenced and the original service has been performed.</li>
+            </ul>
+        </section>
+
+        <!-- 5. How to Request a Refund -->
+        <section class="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">5. How to Request a Refund</h2>
+            <p class="text-xs text-gray-700">To request a refund, please send an email to:</p>
+            <p class="font-bold text-brand-primary text-sm"><a href="mailto:connectthehomefirst@gmail.com" class="underline">connectthehomefirst@gmail.com</a></p>
+            <p class="text-xs text-gray-600 font-semibold">Subject line: Refund Request – The Home First</p>
+            <p class="text-xs text-gray-700">Please include:</p>
+            <ul class="list-disc pl-5 text-xs text-gray-700 space-y-1">
+                <li>Full name.</li>
+                <li>Registered mobile number.</li>
+                <li>Registered email address.</li>
+                <li>Service or order reference number.</li>
+                <li>Payment transaction ID, date, and amount paid.</li>
+                <li>Reason for requesting a refund.</li>
+                <li>Supporting payment receipt, where available.</li>
+            </ul>
+            <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 font-medium">
+                Please do NOT send passwords, OTPs or unnecessary sensitive financial information.
+            </div>
+        </section>
+
+        <!-- 6 to 9 -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">6. Refund Review</h2>
+            <p>After receiving a request, our team will review the payment record and service status. We may contact the customer for additional information. The outcome will be communicated using the contact details provided.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">7. Refund Processing</h2>
+            <p>If a refund is approved, it will generally be processed to the original payment method wherever supported by the payment provider. The time taken for the amount to appear in the customer's account may depend on the bank, card issuer or payment service provider.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">8. Third-Party Payments</h2>
+            <p>Where a payment is made directly to a bank, property owner, Real Estate Partner or another third party, the refund will generally be governed by the terms and policies of that recipient. The Home First cannot promise a refund of money that it has not collected or does not control.</p>
+        </section>
+
+        <section class="bg-white p-6 rounded-2xl border border-gray-200 space-y-2">
+            <h2 class="text-xl font-bold text-gray-900">9. Contact</h2>
+            <p class="text-xs text-gray-700"><strong>Operating Company:</strong> AINexTech LLP</p>
+            <p class="text-xs text-gray-700">Address: Shop 10, Bhoomi Acres, Phase 2, Waghbil Road, Hiranandani Estate, Thane West, Thane - 400615</p>
+            <p class="text-xs text-gray-700">Email: <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary underline">connectthehomefirst@gmail.com</a></p>
+            <p class="text-xs text-gray-700">Phone: <a href="tel:+917738230656" class="text-brand-primary underline">+91-77382 30656</a></p>
+            <p class="text-xs text-gray-700">Subject: Refund Request – The Home First</p>
+        </section>
     </div>
 </div>
 {% endblock %}

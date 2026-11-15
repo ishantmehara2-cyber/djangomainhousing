@@ -4,11 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The Home First (THF) - Your Property. Your Possibilities. Discover 100% verified residential properties, commercial spaces, plots, and home loans.">
-    <meta property="og:site_name" content="The Home First">
-    <meta property="og:title" content="The Home First | Your Property. Your Possibilities.">
-    <meta property="og:description" content="Discover 100% verified apartments, villas, plots, and commercial offices with direct partner connections on The Home First (THF).">
-    <title>{% block title %}The Home First | Your Property. Your Possibilities.{% endblock %}</title>
+    <!-- Primary SEO Metadata -->
+    <title>{% block title %}{{ seo.title }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ seo.description|escape }}{% endblock %}">
+    {% if seo.keywords %}<meta name="keywords" content="{% block meta_keywords %}{{ seo.keywords|escape }}{% endblock %}">{% endif %}
+    <link rel="canonical" href="{% block canonical_url %}{{ seo.canonical_url }}{% endblock %}">
+    <meta name="robots" content="{% block meta_robots %}{{ seo.robots }}{% endblock %}">
+
+    <!-- Open Graph / Social Sharing Metadata -->
+    <meta property="og:site_name" content="{{ seo.og_site_name }}">
+    <meta property="og:title" content="{% block og_title %}{{ seo.og_title|escape }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ seo.og_description|escape }}{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ seo.canonical_url }}{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}{{ seo.og_type }}{% endblock %}">
+    {% if seo.og_image %}<meta property="og:image" content="{% block og_image %}{{ seo.og_image }}{% endblock %}">{% endif %}
+
+    <!-- Twitter / X Card Metadata -->
+    <meta name="twitter:card" content="{% block twitter_card %}{{ seo.twitter_card }}{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ seo.twitter_title|escape }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ seo.twitter_description|escape }}{% endblock %}">
+    {% if seo.twitter_image %}<meta name="twitter:image" content="{% block twitter_image %}{{ seo.twitter_image }}{% endblock %}">{% endif %}
+
+    <!-- Structured Data (JSON-LD) -->
+    {% block structured_data_block %}
+    {% if seo.structured_data_json %}
+    <script type="application/ld+json">
+    {{ seo.structured_data_json|safe }}
+    </script>
+    {% endif %}
+    {% endblock %}
 
     <!-- Browser Favicon (THF Monogram) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23111827'/><text x='50%' y='64%' font-size='40' font-weight='900' font-family='Arial, sans-serif' fill='%23e02424' text-anchor='middle'>THF</text></svg>">

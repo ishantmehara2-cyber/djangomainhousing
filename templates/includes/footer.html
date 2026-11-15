@@ -1,61 +1,92 @@
 <footer class="bg-gray-900 text-gray-300 pt-16 pb-8 border-t border-gray-800 text-xs mt-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
-            <div class="md:col-span-2 space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Brand Section -->
+            <div class="space-y-3 md:col-span-1">
                 <div class="flex items-center space-x-2">
-                    <div class="w-6 h-6 bg-red-600 rounded-lg flex items-center justify-center text-white font-black text-[10px]">THF</div>
+                    <div class="w-7 h-7 bg-red-600 rounded-lg flex items-center justify-center text-white font-black text-xs">THF</div>
                     <span class="text-base font-black text-white tracking-tight">THE HOME <span class="text-brand-primary">FIRST</span></span>
                 </div>
-                <p class="text-gray-400 text-xs leading-relaxed max-w-sm">
-                    The Home First (THF) — Your Property. Your Possibilities. India's trusted modern real estate marketplace. Discover 100% verified apartments, villas, plots, and commercial spaces with direct partner connections.
+                <p class="text-gray-400 text-xs font-bold text-brand-primary uppercase tracking-wider">Your Property. Your Possibilities.</p>
+                <p class="text-gray-400 text-xs leading-relaxed">
+                    Discover residential and commercial properties, explore home loan options, connect with Real Estate Partners and access rental agreement-related services through The Home First.
+                </p>
+                <p class="text-gray-400 text-[11px] leading-relaxed italic">
+                    The Home First is a real estate platform operated by <strong>AINexTech LLP</strong>.
                 </p>
                 <div>
                     <span class="inline-flex items-center space-x-1.5 text-[10px] text-emerald-400 bg-emerald-950 px-3 py-1 rounded-md border border-emerald-800 font-bold">
                         <span>✔</span>
-                        <span>Enterprise Security Guaranteed</span>
+                        <span>Verified Real Estate Platform</span>
                     </span>
                 </div>
             </div>
 
+            <!-- Quick Links -->
             <div>
-                <h4 class="font-extrabold text-white uppercase text-[11px] tracking-wider mb-4">Explore Real Estate</h4>
-                <ul class="space-y-2.5">
-                    <li><a href="{% url 'properties:search' %}?listing_purpose=BUY" class="hover:text-white transition">Buy Properties in India</a></li>
-                    <li><a href="{% url 'properties:search' %}?listing_purpose=RENT" class="hover:text-white transition">Rental Apartments & PGs</a></li>
-                    <li><a href="{% url 'properties:search' %}?listing_purpose=COMMERCIAL" class="hover:text-white transition">Commercial Spaces & Offices</a></li>
-                    <li><a href="{% url 'properties:search' %}?listing_purpose=PLOT" class="hover:text-white transition">Residential Plots & Land</a></li>
-                    <li><a href="/brokers/" class="hover:text-white transition">Real Estate Partners & Agents</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="font-extrabold text-white uppercase text-[11px] tracking-wider mb-4">Top Cities</h4>
-                <ul class="space-y-2.5">
-                    <li><a href="{% url 'properties:search' %}?city=mumbai" class="hover:text-white transition">Properties in Mumbai</a></li>
-                    <li><a href="{% url 'properties:search' %}?city=pune" class="hover:text-white transition">Properties in Pune</a></li>
-                    <li><a href="{% url 'properties:search' %}?city=bengaluru" class="hover:text-white transition">Properties in Bengaluru</a></li>
-                    <li><a href="{% url 'properties:search' %}?city=delhi" class="hover:text-white transition">Properties in Delhi NCR</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="font-extrabold text-white uppercase text-[11px] tracking-wider mb-4">Services & Legal</h4>
-                <ul class="space-y-2.5">
-                    <li><a href="{% url 'services:bank-loans' %}" class="hover:text-white transition font-medium">Home Bank Loans</a></li>
-                    <li><a href="{% url 'services:loan-calculator' %}" class="hover:text-white transition font-medium">Loan Eligibility Calculator</a></li>
-                    <li><a href="{% url 'services:rental-agreement' %}" class="hover:text-white transition font-medium">Online Rental Agreements</a></li>
+                <h4 class="font-extrabold text-white uppercase text-[11px] tracking-wider mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="/" class="hover:text-white transition">Home</a></li>
+                    <li><a href="{% url 'services:partner-marketplace' %}" class="hover:text-white transition">Partner Marketplace</a></li>
+                    <li><a href="{% url 'properties:search' %}?listing_purpose=BUY" class="hover:text-white transition">Buy Properties</a></li>
+                    <li><a href="{% url 'properties:search' %}?listing_purpose=RENT" class="hover:text-white transition">Rent Properties</a></li>
+                    <li><a href="{% url 'properties:search' %}?listing_purpose=COMMERCIAL" class="hover:text-white transition">Commercial Properties</a></li>
+                    <li><a href="{% url 'services:bank-loans' %}" class="hover:text-white transition">Home Loans</a></li>
+                    <li><a href="{% url 'services:rental-agreement' %}" class="hover:text-white transition">Rental Agreement Services</a></li>
                     <li><a href="/about/" class="hover:text-white transition">About Us</a></li>
-                    <li><a href="/terms/" class="hover:text-white transition">Terms & Conditions</a></li>
+                    <li><a href="/contact/" class="hover:text-white transition">Contact Us</a></li>
                 </ul>
+            </div>
+
+            <!-- Legal Policies -->
+            <div>
+                <h4 class="font-extrabold text-white uppercase text-[11px] tracking-wider mb-4">Legal & Policies</h4>
+                <ul class="space-y-2">
+                    <li><a href="/privacy/" class="hover:text-white transition">Privacy Policy</a></li>
+                    <li><a href="/terms/" class="hover:text-white transition">Terms & Conditions</a></li>
+                    <li><a href="/refund-policy/" class="hover:text-white transition">Refund Policy</a></li>
+                    <li><a href="/return-policy/" class="hover:text-white transition">Return Policy</a></li>
+                    <li><a href="/cancellation-policy/" class="hover:text-white transition">Cancellation Policy</a></li>
+                    <li><a href="/grievance/" class="hover:text-white transition">Grievance Redressal</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Us -->
+            <div class="space-y-3">
+                <h4 class="font-extrabold text-white uppercase text-[11px] tracking-wider mb-4">Contact Us</h4>
+                <div class="space-y-2.5 text-xs text-gray-400">
+                    <p class="text-gray-300 font-bold">AINexTech LLP</p>
+                    <p class="text-gray-400 text-[11px] leading-snug">
+                        Shop 10, Bhoomi Acres, Phase 2, Waghbil Road, Hiranandani Estate, Thane West, Thane - 400615
+                    </p>
+                    <p class="flex items-center gap-1.5 pt-1">
+                        <span class="font-bold text-gray-200">Email:</span>
+                        <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary hover:underline">connectthehomefirst@gmail.com</a>
+                    </p>
+                    <p class="flex items-center gap-1.5">
+                        <span class="font-bold text-gray-200">Website:</span>
+                        <a href="https://www.thehomefirst.com/" target="_blank" rel="noopener" class="hover:text-white">www.thehomefirst.com</a>
+                    </p>
+                    <p class="flex items-center gap-1.5">
+                        <span class="font-bold text-gray-200">Phone:</span>
+                        <a href="tel:+917738230656" class="text-brand-primary hover:underline font-semibold">+91-77382 30656</a>
+                    </p>
+                </div>
             </div>
         </div>
 
         <div class="pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between text-gray-500 gap-4">
-            <p>© 2026 The Home First (THF). All rights reserved.</p>
-            <div class="flex items-center space-x-6 text-[11px]">
-                <a href="/privacy/" class="hover:text-gray-300">Privacy</a>
-                <a href="/terms/" class="hover:text-gray-300">Terms</a>
-                <a href="/contact/" class="hover:text-gray-300">Support</a>
+            <p>© 2026 The Home First (THF) — Operated by AINexTech LLP. All Rights Reserved.</p>
+            <div class="flex items-center space-x-4 text-[11px]">
+                <a href="/privacy/" class="hover:text-gray-300">Privacy Policy</a>
+                <span>•</span>
+                <a href="/terms/" class="hover:text-gray-300">Terms & Conditions</a>
+                <span>•</span>
+                <a href="/refund-policy/" class="hover:text-gray-300">Refund</a>
+                <span>•</span>
+                <a href="/return-policy/" class="hover:text-gray-300">Return</a>
+                <span>•</span>
+                <a href="/cancellation-policy/" class="hover:text-gray-300">Cancellation</a>
             </div>
         </div>
     </div>

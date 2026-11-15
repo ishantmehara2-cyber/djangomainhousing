@@ -4,7 +4,7 @@
         <!-- Image & Badges (Main Selected Thumbnail ONLY) -->
         <div class="h-52 bg-gray-100 relative overflow-hidden">
             {% if prop.get_main_thumbnail_url %}
-                <img src="{{ prop.get_main_thumbnail_url }}" alt="{{ prop.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <img src="{{ prop.get_main_thumbnail_url }}" alt="{{ prop.title|escape }} - Property for {{ prop.get_listing_purpose_display }} in {{ prop.locality.name|escape }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async">
             {% else %}
                 <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50 space-y-1">
                     <span class="text-2xl">🏠</span>

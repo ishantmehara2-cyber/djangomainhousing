@@ -1,29 +1,65 @@
 {% extends 'base.html' %}
-{% block title %}Contact Support | The Home First{% endblock %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}Contact Support | The Home First{% endif %}{% endblock %}
+
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 py-12 space-y-8">
+<div class="max-w-4xl mx-auto px-4 py-12 space-y-10">
     <div class="border-b border-gray-200 pb-6">
-        <h1 class="text-3xl font-black text-gray-900">Contact Us</h1>
-        <p class="text-sm text-gray-500 mt-2">We are here to assist you with your real estate journey.</p>
+        <h1 class="text-3xl font-black text-gray-900 tracking-tight">Contact Us</h1>
+        <p class="text-sm text-gray-500 mt-2">We are here to assist you with your property journey.</p>
+        <p class="text-xs text-gray-400 mt-1 font-medium">The Home First is a real estate platform operated by <strong>AINexTech LLP</strong>.</p>
     </div>
 
-    <form method="POST" class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 space-y-6">
-        {% csrf_token %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Your Name</label>
-                <input type="text" name="name" required class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-brand-primary">
+    <!-- Official Contact Information Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-2">
+            <div class="w-10 h-10 bg-red-50 text-brand-primary rounded-xl flex items-center justify-center font-bold text-lg">📍</div>
+            <h3 class="font-bold text-gray-900 text-sm">Registered / Business Address</h3>
+            <p class="text-xs text-gray-600 leading-relaxed">
+                <strong>AINexTech LLP</strong><br>
+                Shop 10, Bhoomi Acres, Phase 2, Waghbil Road, Hiranandani Estate, Thane West, Thane - 400615
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-2">
+            <div class="w-10 h-10 bg-red-50 text-brand-primary rounded-xl flex items-center justify-center font-bold text-lg">📞</div>
+            <h3 class="font-bold text-gray-900 text-sm">Contact Phone</h3>
+            <p class="text-xs text-gray-600 leading-relaxed">
+                Call us directly at:<br>
+                <a href="tel:+917738230656" class="text-brand-primary font-bold hover:underline text-sm">+91-77382 30656</a>
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-2">
+            <div class="w-10 h-10 bg-red-50 text-brand-primary rounded-xl flex items-center justify-center font-bold text-lg">✉️</div>
+            <h3 class="font-bold text-gray-900 text-sm">Official Contact Email</h3>
+            <p class="text-xs text-gray-600 leading-relaxed">
+                Send your queries to:<br>
+                <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary font-bold hover:underline text-xs">connectthehomefirst@gmail.com</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 space-y-6">
+        <h2 class="text-xl font-bold text-gray-900">Send Us a Message</h2>
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Your Name</label>
+                    <input type="text" name="name" required class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-brand-primary outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Email Address</label>
+                    <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-brand-primary outline-none">
+                </div>
             </div>
             <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Email Address</label>
-                <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-brand-primary">
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Message / Enquiry</label>
+                <textarea name="message" rows="5" required class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-brand-primary outline-none" placeholder="Describe your property or service query here..."></textarea>
             </div>
-        </div>
-        <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Message / Enquiry</label>
-            <textarea name="message" rows="5" required class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-brand-primary"></textarea>
-        </div>
-        <button type="submit" class="w-full bg-brand-primary hover:bg-brand-hover text-white font-bold py-3.5 rounded-xl transition text-sm">Send Message</button>
-    </form>
+            <button type="submit" class="w-full bg-brand-primary hover:bg-brand-hover text-white font-bold py-3.5 rounded-xl transition text-sm shadow-sm">Send Message</button>
+        </form>
+    </div>
 </div>
 {% endblock %}

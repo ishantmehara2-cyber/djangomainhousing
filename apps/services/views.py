@@ -2,7 +2,7 @@ import math
 import csv
 from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
@@ -13,6 +13,8 @@ from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from apps.accounts.permissions import admin_required
+from apps.locations.models import State, City, Locality
+from apps.core.validators import validate_file_size_5mb
 from apps.services.models import (
     BankPartner,
     BankCategoryChoices,
@@ -26,17 +28,34 @@ from apps.services.models import (
     LoanInquiryNote,
     LoanInquiryStatusHistory,
     LoanInquiryStatusChoices,
-    EmploymentTypeChoices
+    EmploymentTypeChoices,
+    ServiceCategory,
+    Service,
+    ServiceProvider,
+    ProviderApprovalStatusChoices,
+    ProviderServiceArea,
+    ServiceProviderDocument,
+    ServiceEnquiry,
+    ServiceAssignment,
+    ServiceEnquiryStatusHistory,
+    ServiceEnquiryStatusChoices
 )
 from apps.services.forms import (
     LoanInquiryLeadForm,
     BankLoanEnquiryForm,
     HomeLoanCalculatorForm,
     RentalAgreementRequestForm,
-    BankPartnerForm
+    BankPartnerForm,
+    ServiceEnquiryForm
+)
+from apps.services.enquiry_service import (
+    create_service_enquiry,
+    send_service_enquiry_notification,
+    send_provider_registration_notification
 )
 
 User = get_user_model()
+
 
 def bank_loans_view(request):
     """
@@ -54,7 +73,7 @@ def bank_loans_view(request):
             email = cd['email_address'].strip().lower()
             amount = cd['desired_loan_amount']
 
-            # Duplicate submission check (MODULE 2: 120-second window)
+            # Duplicate submission check (120-second window)
             recent_cutoff = timezone.now() - timedelta(seconds=120)
             duplicate = LoanInquiryLead.objects.filter(
                 Q(mobile_number=mobile) | Q(email_address__iexact=email),
@@ -108,7 +127,7 @@ def bank_loans_view(request):
 def home_loan_calculator_view(request):
     """
     Home Loan Eligibility & EMI Calculator.
-    Mathematically computes maximum eligible loan amount and EMI based on FOIR (Fixed Obligation to Income Ratio).
+    Mathematically computes maximum eligible loan amount and EMI based on FOIR.
     """
     form = HomeLoanCalculatorForm(request.GET if request.GET else None)
 
@@ -259,9 +278,6 @@ def admin_rental_agreements_view(request):
 @login_required
 @admin_required
 def admin_bank_management_view(request):
-    """
-    Admin portal bank listing view with search, filtering, and quick status toggles.
-    """
     q = request.GET.get('q', '').strip()
     category = request.GET.get('category', '').strip()
     status = request.GET.get('status', '').strip()
@@ -292,9 +308,6 @@ def admin_bank_management_view(request):
 @login_required
 @admin_required
 def admin_add_bank_view(request):
-    """
-    Admin view to add a new banking partner.
-    """
     if request.method == 'POST':
         form = BankPartnerForm(request.POST, request.FILES)
         if form.is_valid():
@@ -316,9 +329,6 @@ def admin_add_bank_view(request):
 @login_required
 @admin_required
 def admin_edit_bank_view(request, pk):
-    """
-    Admin view to edit an existing banking partner.
-    """
     bank = get_object_or_404(BankPartner, pk=pk)
 
     if request.method == 'POST':
@@ -344,9 +354,6 @@ def admin_edit_bank_view(request, pk):
 @admin_required
 @require_POST
 def admin_toggle_bank_active_view(request, pk):
-    """
-    Quick toggle active/inactive status for a bank partner.
-    """
     bank = get_object_or_404(BankPartner, pk=pk)
     bank.is_active = not bank.is_active
     bank.save(update_fields=['is_active'])
@@ -359,9 +366,6 @@ def admin_toggle_bank_active_view(request, pk):
 @admin_required
 @require_POST
 def admin_delete_bank_view(request, pk):
-    """
-    Safely deletes or deactivates a bank partner depending on existing references.
-    """
     bank = get_object_or_404(BankPartner, pk=pk)
     has_enquiries = BankLoanEnquiry.objects.filter(preferred_bank=bank).exists()
 
@@ -378,16 +382,12 @@ def admin_delete_bank_view(request, pk):
 
 
 # ==============================================================================
-# ADMIN PORTAL - LOAN INQUIRY LEADS (MODULE 3, 4, 5, 6, 7)
+# ADMIN PORTAL - LOAN INQUIRY LEADS
 # ==============================================================================
 
 @login_required
 @admin_required
 def admin_loan_inquiries_view(request):
-    """
-    Admin portal view for Home Loan Inquiry Leads:
-    Search, multi-filter, pagination, status counts, and action workflow.
-    """
     query = request.GET.get('q', '').strip()
     status_filter = request.GET.get('status', '').strip()
     bank_filter = request.GET.get('bank', '').strip()
@@ -415,7 +415,6 @@ def admin_loan_inquiries_view(request):
     else:
         leads = leads.order_by('-created_at')
 
-    # Summary Statistics (MODULE 9)
     total_count = LoanInquiryLead.objects.filter(is_deleted=False).count()
     new_count = LoanInquiryLead.objects.filter(is_deleted=False, status='NEW').count()
     pending_count = LoanInquiryLead.objects.filter(is_deleted=False, status='CONTACT_PENDING').count()
@@ -460,11 +459,6 @@ def admin_loan_inquiries_view(request):
 @login_required
 @admin_required
 def admin_loan_inquiry_detail_view(request, lead_id):
-    """
-    Dedicated Lead Details View:
-    Displays complete applicant & financial information, status updates, staff assignments,
-    follow-up scheduling, internal notes, and audit history.
-    """
     lead = get_object_or_404(LoanInquiryLead.objects.select_related('preferred_bank', 'assigned_staff'), id=lead_id)
 
     if request.method == 'POST':
@@ -542,9 +536,6 @@ def admin_loan_inquiry_detail_view(request, lead_id):
 @admin_required
 @require_POST
 def admin_delete_loan_inquiry_view(request, pk):
-    """
-    Soft deletes / archives a loan inquiry lead.
-    """
     lead = get_object_or_404(LoanInquiryLead, pk=pk)
     lead.is_deleted = True
     lead.save(update_fields=['is_deleted'])
@@ -555,9 +546,6 @@ def admin_delete_loan_inquiry_view(request, pk):
 @login_required
 @admin_required
 def admin_export_loan_inquiries_csv_view(request):
-    """
-    Exports filtered Loan Inquiry Leads to CSV format.
-    """
     query = request.GET.get('q', '').strip()
     status_filter = request.GET.get('status', '').strip()
     bank_filter = request.GET.get('bank', '').strip()
@@ -605,3 +593,462 @@ def admin_export_loan_inquiries_csv_view(request):
         ])
 
     return response
+
+
+# ==============================================================================
+# UNIFIED PARTNER MARKETPLACE SERVICE PROVIDER VIEWS
+# ==============================================================================
+
+def partner_marketplace_view(request):
+    """
+    Unified Partner Marketplace main portal view.
+    Single Source of Truth: ServiceProvider database model.
+    Public visibility condition: approval_status='APPROVED', is_active=True, is_published=True.
+    """
+    active_tab = request.GET.get('tab', 'services')
+
+    agents = User.objects.filter(role__in=['AGENT', 'DEVELOPER'], status='ACTIVE').order_by('-date_joined')
+    categories = ServiceCategory.objects.filter(
+        approval_status='APPROVED',
+        is_published=True,
+        is_active=True
+    ).order_by('display_order', 'name')
+
+    approved_providers = ServiceProvider.objects.filter(
+        approval_status=ProviderApprovalStatusChoices.APPROVED,
+        is_active=True,
+        is_published=True
+    ).select_related('city', 'state', 'category').prefetch_related('categories').order_by('-created_at')
+
+    featured_providers = approved_providers.filter(is_featured=True)
+
+    featured_services = Service.objects.filter(
+        approval_status='APPROVED',
+        is_published=True,
+        is_active=True,
+        is_featured=True,
+        category__approval_status='APPROVED',
+        category__is_published=True,
+        category__is_active=True
+    ).select_related('category').order_by('display_order', 'name')[:12]
+
+    search_q = request.GET.get('q', '').strip()
+    if search_q:
+        agents = agents.filter(Q(username__icontains=search_q) | Q(first_name__icontains=search_q) | Q(last_name__icontains=search_q) | Q(agency_name__icontains=search_q))
+        categories = categories.filter(
+            Q(name__icontains=search_q) | Q(description__icontains=search_q)
+        ).distinct()
+        approved_providers = approved_providers.filter(
+            Q(business_name__icontains=search_q) | Q(full_name__icontains=search_q) | Q(city__name__icontains=search_q) | Q(category__name__icontains=search_q)
+        ).distinct()
+
+    context = {
+        'agents': agents,
+        'categories': categories,
+        'approved_providers': approved_providers,
+        'featured_providers': featured_providers,
+        'featured_services': featured_services,
+        'active_tab': active_tab,
+        'search_query': search_q,
+    }
+    return render(request, 'brokers/partner_marketplace.html', context)
+
+
+def service_category_detail_view(request, slug):
+    """
+    Displays all individual services and approved service provider companies under a specific category.
+    Returns 404 if category itself is not approved, published, and active.
+    """
+    category = get_object_or_404(
+        ServiceCategory,
+        slug=slug,
+        approval_status='APPROVED',
+        is_published=True,
+        is_active=True
+    )
+
+    services = Service.objects.filter(
+        category=category,
+        approval_status='APPROVED',
+        is_published=True,
+        is_active=True
+    ).order_by('display_order', 'name')
+
+    approved_providers = ServiceProvider.objects.filter(
+        approval_status=ProviderApprovalStatusChoices.APPROVED,
+        is_active=True,
+        is_published=True
+    ).filter(
+        Q(category=category) | Q(categories=category)
+    ).select_related('city', 'state').prefetch_related('categories').distinct().order_by('-created_at')
+
+    search_q = request.GET.get('q', '').strip()
+    if search_q:
+        services = services.filter(
+            Q(name__icontains=search_q) | Q(short_description__icontains=search_q) | Q(detailed_description__icontains=search_q)
+        ).distinct()
+        approved_providers = approved_providers.filter(
+            Q(business_name__icontains=search_q) | Q(full_name__icontains=search_q) | Q(city__name__icontains=search_q)
+        ).distinct()
+
+    all_categories = ServiceCategory.objects.filter(
+        approval_status='APPROVED',
+        is_published=True,
+        is_active=True
+    ).order_by('display_order')
+
+    states = State.objects.filter(is_active=True).order_by('name')
+    cities = City.objects.filter(is_active=True).order_by('name')
+
+    context = {
+        'category': category,
+        'services': services,
+        'approved_providers': approved_providers,
+        'all_categories': all_categories,
+        'search_query': search_q,
+        'states': states,
+        'cities': cities,
+    }
+    return render(request, 'services/category_detail.html', context)
+
+
+def service_detail_view(request, slug):
+    """
+    Displays dedicated detail page for an individual service item.
+    Enforces strict backend visibility rules: 404 if service or parent category is not approved, published, and active.
+    """
+    service = get_object_or_404(
+        Service.objects.select_related('category'),
+        slug=slug,
+        approval_status='APPROVED',
+        is_published=True,
+        is_active=True,
+        category__approval_status='APPROVED',
+        category__is_published=True,
+        category__is_active=True
+    )
+
+    related_services = Service.objects.filter(
+        category=service.category,
+        approval_status='APPROVED',
+        is_published=True,
+        is_active=True
+    ).exclude(id=service.id).order_by('display_order', 'name')[:6]
+
+    eligible_providers = service.providers.filter(
+        approval_status=ProviderApprovalStatusChoices.APPROVED,
+        is_active=True,
+        is_published=True
+    ).select_related('city', 'state').distinct()
+
+    if not eligible_providers.exists():
+        eligible_providers = ServiceProvider.objects.filter(
+            approval_status=ProviderApprovalStatusChoices.APPROVED,
+            is_active=True,
+            is_published=True
+        ).filter(
+            Q(category=service.category) | Q(categories=service.category)
+        ).select_related('city', 'state').distinct()[:6]
+
+    states = State.objects.filter(is_active=True).order_by('name')
+    cities = City.objects.filter(is_active=True).order_by('name')
+
+    context = {
+        'service': service,
+        'category': service.category,
+        'related_services': related_services,
+        'eligible_providers': eligible_providers,
+        'states': states,
+        'cities': cities,
+    }
+    return render(request, 'services/service_detail.html', context)
+
+
+def submit_service_enquiry_view(request):
+    """
+    Handles customer enquiry form submission for any specific service or custom service request.
+    Validates service selection against the actual database.
+    Saves record to DB as a ServiceEnquiry lead FIRST before triggering email notifications.
+    """
+    if request.method == 'POST':
+        service_id = request.POST.get('service_id')
+        service_slug = request.POST.get('service_slug')
+        category_id = request.POST.get('category_id')
+        category_slug = request.POST.get('category_slug')
+        requested_service_name = request.POST.get('requested_service_name') or request.POST.get('service_name') or request.POST.get('service')
+
+        service = None
+        category = None
+
+        if service_id and str(service_id).isdigit():
+            service = Service.objects.filter(
+                id=int(service_id),
+                approval_status='APPROVED',
+                is_active=True,
+                is_published=True,
+                category__approval_status='APPROVED',
+                category__is_active=True,
+                category__is_published=True
+            ).first()
+        elif service_slug:
+            service = Service.objects.filter(
+                slug=service_slug,
+                approval_status='APPROVED',
+                is_active=True,
+                is_published=True,
+                category__approval_status='APPROVED',
+                category__is_active=True,
+                category__is_published=True
+            ).first()
+
+        if service:
+            category = service.category
+            requested_service_name = service.name
+        elif category_id and str(category_id).isdigit():
+            category = ServiceCategory.objects.filter(id=int(category_id), approval_status='APPROVED', is_active=True, is_published=True).first()
+        elif category_slug:
+            category = ServiceCategory.objects.filter(slug=category_slug, approval_status='APPROVED', is_active=True, is_published=True).first()
+
+        full_name = request.POST.get('full_name', '').strip()
+        mobile_number = request.POST.get('mobile_number', '').strip()
+        email = request.POST.get('email', '').strip()
+        company_name = request.POST.get('company_name', '').strip() or None
+        state_id = request.POST.get('state')
+        city_id = request.POST.get('city')
+        locality_id = request.POST.get('locality')
+        locality_name = request.POST.get('locality_name', '').strip() or None
+        requirement_description = request.POST.get('requirement_description', '').strip()
+        preferred_contact_method = request.POST.get('preferred_contact_method', 'PHONE')
+        preferred_contact_time = request.POST.get('preferred_contact_time', 'Anytime')
+
+        if service:
+            redirect_target = redirect('services:service-detail', slug=service.slug)
+        elif category:
+            redirect_target = redirect('services:service-category-detail', slug=category.slug)
+        else:
+            redirect_target = redirect('services:partner-marketplace')
+
+        # Mandatory Backend Field Validation
+        if not full_name or len(full_name) < 2:
+            messages.error(request, "Please enter your full name (at least 2 characters).")
+            return redirect_target
+
+        digits = ''.join([c for c in mobile_number if c.isdigit()])
+        if not mobile_number or len(digits) < 10:
+            messages.error(request, "Please enter a valid mobile number with at least 10 digits.")
+            return redirect_target
+
+        if not email or '@' not in email:
+            messages.error(request, "Please enter a valid email address.")
+            return redirect_target
+
+        if not requirement_description or len(requirement_description) < 5:
+            messages.error(request, "Please describe your requirement details (at least 5 characters).")
+            return redirect_target
+
+        state = State.objects.filter(id=state_id).first() if state_id and str(state_id).isdigit() else None
+        city = City.objects.filter(id=city_id).first() if city_id and str(city_id).isdigit() else None
+        locality = Locality.objects.filter(id=locality_id).first() if locality_id and str(locality_id).isdigit() else None
+        user = request.user if request.user.is_authenticated else None
+
+        enquiry, created, msg = create_service_enquiry(
+            service=service,
+            category=category,
+            requested_service_name=requested_service_name,
+            full_name=full_name,
+            mobile_number=mobile_number,
+            email=email,
+            company_name=company_name,
+            state=state,
+            city=city,
+            locality=locality,
+            locality_name=locality_name,
+            requirement_description=requirement_description,
+            preferred_contact_method=preferred_contact_method,
+            preferred_contact_time=preferred_contact_time,
+            user=user,
+            request=request
+        )
+
+        if created:
+            messages.success(request, msg)
+        else:
+            messages.warning(request, msg)
+
+        return redirect_target
+
+    return redirect('services:partner-marketplace')
+
+
+def register_service_provider_view(request):
+    """
+    Public registration portal for businesses and individuals to become a Service Provider.
+    Registers provider in ServiceProvider table with defaults:
+    approval_status='PENDING', is_active=False, is_featured=False, is_published=False.
+    """
+    categories = ServiceCategory.objects.filter(approval_status='APPROVED', is_published=True, is_active=True).order_by('display_order', 'name')
+    states = State.objects.filter(is_active=True).order_by('name')
+    cities = City.objects.filter(is_active=True).order_by('name')
+
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name', '').strip()
+        mobile_number = request.POST.get('mobile_number', '').strip()
+        email = request.POST.get('email', '').strip()
+
+        business_name = request.POST.get('business_name', '').strip()
+        business_type = request.POST.get('business_type', 'Proprietorship')
+        business_description = request.POST.get('business_description', '').strip()
+        business_address = request.POST.get('business_address', '').strip()
+        category_id = request.POST.get('category')
+        selected_category_ids = request.POST.getlist('selected_categories')
+
+        state_id = request.POST.get('state')
+        city_id = request.POST.get('city')
+        locality_id = request.POST.get('locality')
+        pincode = request.POST.get('pincode', '').strip()
+        website = request.POST.get('website', '').strip()
+
+        years_exp = request.POST.get('years_of_experience', '1')
+        business_contact = request.POST.get('business_contact_number', '').strip()
+        business_email = request.POST.get('business_email', '').strip()
+        working_days = request.POST.get('working_days', 'Monday to Saturday')
+        working_hours = request.POST.get('working_hours', '9:00 AM - 7:00 PM')
+        short_profile = request.POST.get('short_profile', '').strip()
+
+        if not (full_name and mobile_number and email and business_name and business_address):
+            messages.error(request, "Please fill in all mandatory business and contact details.")
+            return redirect('services:register-provider')
+
+        state = State.objects.filter(id=state_id).first() if state_id and str(state_id).isdigit() else None
+        city = City.objects.filter(id=city_id).first() if city_id and str(city_id).isdigit() else None
+        locality = Locality.objects.filter(id=locality_id).first() if locality_id and str(locality_id).isdigit() else None
+        primary_category = ServiceCategory.objects.filter(id=category_id).first() if category_id and str(category_id).isdigit() else None
+
+        user = request.user if request.user.is_authenticated else None
+
+        provider = ServiceProvider.objects.create(
+            user=user,
+            full_name=full_name,
+            mobile_number=mobile_number,
+            email=email,
+            business_name=business_name,
+            business_type=business_type,
+            business_description=business_description,
+            business_address=business_address,
+            category=primary_category,
+            state=state,
+            city=city,
+            locality=locality,
+            pincode=pincode,
+            website=website if website.startswith(('http://', 'https://')) else (f"https://{website}" if website else None),
+            years_of_experience=int(years_exp) if str(years_exp).isdigit() else 1,
+            business_contact_number=business_contact,
+            business_email=business_email,
+            working_days=working_days,
+            working_hours=working_hours,
+            short_profile=short_profile,
+            approval_status=ProviderApprovalStatusChoices.PENDING,
+            is_active=False,
+            is_featured=False,
+            is_published=False
+        )
+
+        for c_id in selected_category_ids:
+            if str(c_id).isdigit():
+                cat = ServiceCategory.objects.filter(id=int(c_id)).first()
+                if cat:
+                    provider.categories.add(cat)
+
+        if state or city:
+            ProviderServiceArea.objects.create(provider=provider, state=state, city=city, locality=locality)
+
+        uploaded_files = request.FILES.getlist('documents')
+        for doc_file in uploaded_files:
+            try:
+                validate_file_size_5mb(doc_file)
+                ServiceProviderDocument.objects.create(
+                    provider=provider,
+                    document_name=doc_file.name,
+                    file=doc_file
+                )
+            except Exception as e:
+                messages.warning(request, f"Document '{doc_file.name}' could not be saved: {e}")
+
+        # Trigger automatic email notification to connectthehomefirst@gmail.com
+        send_provider_registration_notification(provider, request=request)
+
+        messages.success(
+            request,
+            f"Registration submitted successfully! Your Provider Reference ID is #{provider.provider_id}. "
+            f"Your application is currently Pending Review by our compliance team."
+        )
+        return redirect('services:register-provider')
+
+    context = {
+        'categories': categories,
+        'states': states,
+        'cities': cities,
+    }
+    return render(request, 'services/register_provider.html', context)
+
+
+@login_required
+def service_provider_dashboard_view(request):
+    """
+    Dedicated Dashboard for Approved and Registered Service Providers.
+    """
+    provider = ServiceProvider.objects.filter(user=request.user).first()
+    if not provider:
+        provider = ServiceProvider.objects.filter(Q(email__iexact=request.user.email) | Q(mobile_number=getattr(request.user, 'phone', ''))).first()
+        if provider and not provider.user:
+            provider.user = request.user
+            provider.save(update_fields=['user'])
+
+    if not provider:
+        messages.info(request, "You do not have an active Service Provider profile. Please register as a Service Provider to access the provider portal.")
+        return redirect('services:register-provider')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        assignment_id = request.POST.get('assignment_id')
+
+        if assignment_id and action in ['accept', 'decline', 'submit_quotation', 'update_progress']:
+            assignment = get_object_or_404(ServiceAssignment, id=assignment_id, provider=provider)
+
+            if action == 'accept':
+                assignment.response_status = 'ACCEPTED'
+                assignment.response_at = timezone.now()
+                assignment.save()
+                messages.success(request, f"You accepted assignment #{assignment.enquiry.enquiry_id}.")
+
+            elif action == 'decline':
+                assignment.response_status = 'DECLINED'
+                assignment.response_at = timezone.now()
+                assignment.save()
+                messages.warning(request, f"You declined assignment #{assignment.enquiry.enquiry_id}.")
+
+            elif action == 'submit_quotation':
+                amount = request.POST.get('quotation_amount')
+                notes = request.POST.get('quotation_notes', '').strip()
+                if amount:
+                    assignment.quotation_amount = float(amount)
+                    assignment.quotation_notes = notes
+                    assignment.save()
+                    messages.success(request, f"Quotation of ₹{amount} submitted for enquiry #{assignment.enquiry.enquiry_id}.")
+
+            elif action == 'update_progress':
+                p_notes = request.POST.get('progress_notes', '').strip()
+                if p_notes:
+                    assignment.progress_notes = p_notes
+                    assignment.save()
+                    messages.success(request, "Progress notes updated.")
+
+            return redirect('services:provider-dashboard')
+
+    assignments = ServiceAssignment.objects.filter(provider=provider).select_related('enquiry').order_by('-assigned_at')
+
+    context = {
+        'provider': provider,
+        'assignments': assignments,
+    }
+    return render(request, 'services/provider_dashboard.html', context)
