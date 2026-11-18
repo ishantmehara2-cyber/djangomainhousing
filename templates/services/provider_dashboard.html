@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Service Provider Dashboard | The Home First{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+        <!-- Profile Header -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="flex items-center space-x-3">
+                    <h1 class="text-2xl font-black text-gray-900">{{ provider.business_name }}</h1>
+                    <span class="px-3 py-1 rounded-full text-xs font-black {% if provider.status == 'APPROVED' %}bg-green-100 text-green-800{% elif provider.status == 'PENDING' %}bg-amber-100 text-amber-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ provider.get_status_display }}
+                    </span>
+                </div>
+                <p class="text-xs text-gray-500 font-semibold">
+                    Provider Ref ID: <span class="font-bold text-gray-900">#{{ provider.provider_id }}</span> |
+                    Owner: <span class="font-bold text-gray-900">{{ provider.full_name }}</span> |
+                    Location: <span class="font-bold text-gray-900">{{ provider.city.name|default:"Operating Locations" }}</span>
+                </p>
+            </div>
+        </div>
+
+        {% if messages %}
+            <div class="space-y-2">
+                {% for message in messages %}
+                    <div class="p-4 rounded-xl text-xs font-bold shadow-sm {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'warning' %}bg-amber-50 text-amber-800 border border-amber-200{% else %}bg-red-50 text-red-800 border border-red-200{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Assigned Customer Enquiries Section -->
+        <div class="space-y-4">
+            <h2 class="text-xl font-black text-gray-900">Assigned Customer Enquiries ({{ assignments|length }})</h2>
+
+            {% if assignments %}
+                <div class="space-y-4">
+                    {% for assign in assignments %}
+                        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+                                <div>
+                                    <span class="text-xs font-bold text-brand-primary">Enquiry Reference: #{{ assign.enquiry.enquiry_id }}</span>
+                                    <h3 class="text-base font-black text-gray-900 mt-0.5">{{ assign.enquiry.service.name }}</h3>
+                                    <p class="text-xs text-gray-500">Customer: <strong class="text-gray-900">{{ assign.enquiry.full_name }}</strong> ({{ assign.enquiry.mobile_number }}) | City: <strong>{{ assign.enquiry.city.name|default:"Not specified" }}</strong></p>
+                                </div>
+
+                                <div class="flex items-center space-x-3">
+                                    <span class="px-3 py-1 rounded-full text-xs font-black {% if assign.response_status == 'ACCEPTED' %}bg-green-100 text-green-800{% elif assign.response_status == 'DECLINED' %}bg-red-100 text-red-800{% else %}bg-amber-100 text-amber-800{% endif %}">
+                                        {{ assign.get_response_status_display }}
+                                    </span>
+
+                                    {% if assign.response_status == 'PENDING' %}
+                                        <form method="POST" action="{% url 'services:provider-dashboard' %}" class="inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="assignment_id" value="{{ assign.id }}">
+                                            <button type="submit" name="action" value="accept" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition">Accept</button>
+                                            <button type="submit" name="action" value="decline" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition">Decline</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-xl text-xs text-gray-700 space-y-2">
+                                <p><strong>Requirement:</strong> {{ assign.enquiry.requirement_description }}</p>
+                                <p><strong>Preferred Contact:</strong> {{ assign.enquiry.get_preferred_contact_method_display }} ({{ assign.enquiry.get_preferred_contact_time_display }})</p>
+                            </div>
+
+                            {% if assign.response_status == 'ACCEPTED' %}
+                                <div class="pt-3 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <form method="POST" action="{% url 'services:provider-dashboard' %}" class="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="assignment_id" value="{{ assign.id }}">
+                                        <input type="hidden" name="action" value="submit_quotation">
+                                        <h4 class="text-xs font-black text-gray-900">Submit / Update Quotation</h4>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Quotation Amount (₹)</label>
+                                            <input type="number" step="0.01" name="quotation_amount" value="{{ assign.quotation_amount|default:'' }}" required placeholder="e.g. 2500" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs outline-none focus:border-brand-primary">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Quotation Notes</label>
+                                            <textarea name="quotation_notes" rows="2" placeholder="Breakdown or inclusions..." class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs outline-none focus:border-brand-primary">{{ assign.quotation_notes|default:'' }}</textarea>
+                                        </div>
+                                        <button type="submit" class="bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition">Submit Quotation</button>
+                                    </form>
+
+                                    <form method="POST" action="{% url 'services:provider-dashboard' %}" class="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="assignment_id" value="{{ assign.id }}">
+                                        <input type="hidden" name="action" value="update_progress">
+                                        <h4 class="text-xs font-black text-gray-900">Update Service Progress Notes</h4>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Progress Remarks</label>
+                                            <textarea name="progress_notes" rows="4" placeholder="Site visit completed / Work in progress..." class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs outline-none focus:border-brand-primary">{{ assign.progress_notes|default:'' }}</textarea>
+                                        </div>
+                                        <button type="submit" class="bg-gray-900 hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-lg transition">Update Progress</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-white p-12 text-center rounded-2xl border border-gray-200">
+                    <p class="text-sm font-bold text-gray-500">No customer enquiries assigned to your profile yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

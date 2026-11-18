@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}Cancellation Policy | The Home First{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12 space-y-10">
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-6">
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Cancellation Policy</h1>
+        <p class="text-xs text-gray-500 mt-2">The Home First ("THF") | Operated by <strong>AINexTech LLP</strong> | Contact: <a href="mailto:connectthehomefirst@gmail.com" class="underline hover:text-brand-primary">connectthehomefirst@gmail.com</a> | Phone: <a href="tel:+917738230656" class="underline hover:text-brand-primary">+91-77382 30656</a></p>
+    </div>
+
+    <div class="prose max-w-none text-gray-700 text-sm leading-relaxed space-y-8">
+        <!-- 1. Introduction -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">1. Introduction</h2>
+            <p>This Cancellation Policy explains how users may request cancellation of services ordered through The Home First, a real estate platform operated by <strong>AINexTech LLP</strong>.</p>
+            <p>Cancellation conditions depend on the type of service and the stage of processing.</p>
+        </section>
+
+        <!-- 2. Free Property and Home Loan Enquiries -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">2. Free Property and Home Loan Enquiries</h2>
+            <p>Users may request that an enquiry submitted through the website be withdrawn or closed.</p>
+            <p class="text-xs text-gray-600">However, withdrawing an enquiry does not necessarily reverse communication that has already been sent to a property representative or financial institution.</p>
+            <p class="text-xs text-gray-600">Where possible, The Home First will stop further processing of the enquiry after receiving a valid request.</p>
+        </section>
+
+        <!-- 3. Rental Agreement Services -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">3. Rental Agreement Services</h2>
+            <p>Customers wishing to cancel a rental agreement-related service should contact us as soon as possible.</p>
+            <p class="text-xs text-gray-600">Cancellation eligibility may depend on:</p>
+            <ul class="list-disc pl-5 text-xs text-gray-700 space-y-1">
+                <li>Whether the request has been accepted.</li>
+                <li>Whether document preparation has started.</li>
+                <li>Whether the service has been completed.</li>
+                <li>Whether a third-party service provider has already been engaged.</li>
+                <li>The terms communicated at the time of payment.</li>
+            </ul>
+            <p class="text-xs text-gray-500 italic">Any applicable cancellation charges must be disclosed before the customer confirms the paid service.</p>
+        </section>
+
+        <!-- 4. Paid Listing or Promotional Services -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">4. Paid Listing or Promotional Services</h2>
+            <p>If paid listing or promotional services are introduced, cancellation conditions will be communicated separately before purchase.</p>
+            <p class="text-xs text-gray-600">The cancellation outcome may depend on whether the service has been activated or promotional work has already been performed.</p>
+        </section>
+
+        <!-- 5. How to Request Cancellation -->
+        <section class="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">5. How to Request Cancellation</h2>
+            <p class="text-xs text-gray-700">Send an email to:</p>
+            <p class="font-bold text-brand-primary text-sm"><a href="mailto:connectthehomefirst@gmail.com" class="underline">connectthehomefirst@gmail.com</a></p>
+            <p class="text-xs text-gray-600 font-semibold">Subject line: Cancellation Request – The Home First</p>
+            <p class="text-xs text-gray-700">Please include:</p>
+            <ul class="list-disc pl-5 text-xs text-gray-700 space-y-1">
+                <li>Full name.</li>
+                <li>Registered mobile number.</li>
+                <li>Registered email address.</li>
+                <li>Order or service reference number.</li>
+                <li>Date of purchase or request.</li>
+                <li>Reason for cancellation.</li>
+            </ul>
+        </section>
+
+        <!-- 6 to 8 -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">6. Cancellation Confirmation</h2>
+            <p>Our team will review the request and communicate whether cancellation has been accepted. If a refund is applicable, it will be handled according to the Refund Policy and applicable law.</p>
+        </section>
+
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">7. Cancellation by The Home First</h2>
+            <p>The Home First may cancel or discontinue a service where the service cannot be provided, required information is not supplied, fraudulent or misleading information is identified, or a technical/operational issue prevents fulfilment.</p>
+            <p class="text-xs text-gray-600">Where payment has been collected, any applicable refund will be handled according to the Refund Policy and applicable law.</p>
+        </section>
+
+        <section class="bg-white p-6 rounded-2xl border border-gray-200 space-y-2">
+            <h2 class="text-xl font-bold text-gray-900">8. Contact</h2>
+            <p class="text-xs text-gray-700"><strong>Operating Company:</strong> AINexTech LLP</p>
+            <p class="text-xs text-gray-700">Address: Shop 10, Bhoomi Acres, Phase 2, Waghbil Road, Hiranandani Estate, Thane West, Thane - 400615</p>
+            <p class="text-xs text-gray-700">Email: <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary underline">connectthehomefirst@gmail.com</a></p>
+            <p class="text-xs text-gray-700">Phone: <a href="tel:+917738230656" class="text-brand-primary underline">+91-77382 30656</a></p>
+            <p class="text-xs text-gray-700">Subject: Cancellation Request – The Home First</p>
+        </section>
+    </div>
+</div>
+{% endblock %}

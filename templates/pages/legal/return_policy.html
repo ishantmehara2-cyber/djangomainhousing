@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}{% if seo.title %}{{ seo.title }}{% else %}Return Policy | The Home First{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12 space-y-10">
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-6">
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Return Policy</h1>
+        <p class="text-xs text-gray-500 mt-2">The Home First ("THF") | Operated by <strong>AINexTech LLP</strong> | Contact: <a href="mailto:connectthehomefirst@gmail.com" class="underline hover:text-brand-primary">connectthehomefirst@gmail.com</a> | Phone: <a href="tel:+917738230656" class="underline hover:text-brand-primary">+91-77382 30656</a></p>
+    </div>
+
+    <div class="prose max-w-none text-gray-700 text-sm leading-relaxed space-y-8">
+        <!-- 1. Introduction -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">1. Introduction</h2>
+            <p>The Home First is primarily a digital property discovery and service enquiry platform operated by <strong>AINexTech LLP</strong>.</p>
+            <p>The website does not currently operate as a conventional online retail store selling physical goods for delivery.</p>
+            <p>Accordingly, a traditional product return policy is generally not applicable to property listings, digital enquiries or service requests.</p>
+        </section>
+
+        <!-- 2. Physical Products -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">2. Physical Products</h2>
+            <p>Unless a physical product is expressly offered for sale through the website, there are no physical products to return.</p>
+            <p class="text-xs text-gray-600">If physical products are introduced in the future, the applicable product-specific return conditions will be displayed before purchase.</p>
+        </section>
+
+        <!-- 3. Digital Services and Documentation -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">3. Digital Services and Documentation</h2>
+            <p>Digital services, documentation assistance and rental agreement-related services are governed by the service description, applicable cancellation terms and Refund Policy.</p>
+            <p class="text-xs text-gray-600">Customers should review all details before confirming a paid service.</p>
+        </section>
+
+        <!-- 4. Incorrect Service or Deliverable -->
+        <section class="space-y-3">
+            <h2 class="text-xl font-bold text-gray-900">4. Incorrect Service or Deliverable</h2>
+            <p>If a customer believes that a paid service deliverable contains an error attributable to The Home First, they should contact us with:</p>
+            <ul class="list-disc pl-5 text-xs text-gray-700 space-y-1">
+                <li>Full name and contact information.</li>
+                <li>Service or order reference.</li>
+                <li>Description of the issue.</li>
+                <li>Supporting documents or screenshots, where relevant.</li>
+            </ul>
+            <p class="text-xs text-gray-600">We will review the matter and communicate the appropriate next steps, which may include correction, reprocessing or another remedy where applicable.</p>
+        </section>
+
+        <!-- 5. Contact -->
+        <section class="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-2">
+            <h2 class="text-xl font-bold text-gray-900">5. Contact</h2>
+            <p class="text-xs text-gray-700"><strong>Operating Company:</strong> AINexTech LLP</p>
+            <p class="text-xs text-gray-700">Address: Shop 10, Bhoomi Acres, Phase 2, Waghbil Road, Hiranandani Estate, Thane West, Thane - 400615</p>
+            <p class="text-xs text-gray-700">Email: <a href="mailto:connectthehomefirst@gmail.com" class="text-brand-primary underline">connectthehomefirst@gmail.com</a></p>
+            <p class="text-xs text-gray-700">Phone: <a href="tel:+917738230656" class="text-brand-primary underline">+91-77382 30656</a></p>
+            <p class="text-xs text-gray-700">Subject: Return or Service Issue – The Home First</p>
+        </section>
+    </div>
+</div>
+{% endblock %}
